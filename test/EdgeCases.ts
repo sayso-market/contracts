@@ -556,6 +556,67 @@ describe("Edge Cases & Boundaries", async function () {
       assert.ok(bobRefund > USDC(300), "Bob should get significant refund in tie");
     });
 
+    it("tie: oracle voters both get full stake back", async function () {
+      const { usdc, sayso, oracle, factory } = await deployInfrastructure();
+      const now = await getNow();
+
+      await usdc.write.mint([deployer.account.address, USDC(10)]);
+      await usdc.write.approve([factory.address, USDC(10)]);
+
+      await factory.write.createMarket([
+        "Test",
+        BigInt(now),
+        BigInt(now + 200),
+        BigInt(now + 300),
+        BigInt(now + 500),
+        USDC(5),
+        USDC(5),
+      ]);
+
+      const marketAddress = (await factory.read.getAllMarkets())[0];
+      const market = await viem.getContractAt("AMM", marketAddress);
+
+      // Give voters SAYSO tokens
+      await sayso.write.mint([charlie.account.address, SAYSO(500)]);
+      await sayso.write.mint([deployer.account.address, SAYSO(500)]);
+
+      const charlieBefore = await sayso.read.balanceOf([charlie.account.address]);
+      const deployerBefore = await sayso.read.balanceOf([deployer.account.address]);
+
+      // Voting - EXACT TIE: 500 YES vs 500 NO
+      await advanceTime((await market.read.resolutionOpen()) - BigInt(await getNow()) + 1n);
+
+      await sayso.write.approve([oracle.address, SAYSO(500)], { account: charlie.account });
+      await oracle.write.voteYes([marketAddress, SAYSO(500)], { account: charlie.account });
+
+      await sayso.write.approve([oracle.address, SAYSO(500)], { account: deployer.account });
+      await oracle.write.voteNo([marketAddress, SAYSO(500)], { account: deployer.account });
+
+      // Resolve
+      await advanceTime((await market.read.resolutionClose()) - BigInt(await getNow()) + 1n);
+      await market.write.resolve();
+
+      const isTie = await market.read.isTie();
+      assert.equal(isTie, true, "Market should be in tie state");
+
+      // Both voters should get their full SAYSO stake back
+      const charlieClaimable = await oracle.read.calculateClaim([marketAddress, charlie.account.address]);
+      const deployerClaimable = await oracle.read.calculateClaim([marketAddress, deployer.account.address]);
+
+      assert.equal(charlieClaimable, SAYSO(500), "YES voter should get full 500 SAYSO back on tie");
+      assert.equal(deployerClaimable, SAYSO(500), "NO voter should get full 500 SAYSO back on tie");
+
+      // Claim and verify balances
+      await oracle.write.claim([marketAddress], { account: charlie.account });
+      await oracle.write.claim([marketAddress], { account: deployer.account });
+
+      const charlieAfter = await sayso.read.balanceOf([charlie.account.address]);
+      const deployerAfter = await sayso.read.balanceOf([deployer.account.address]);
+
+      assert.equal(charlieAfter, charlieBefore, "Charlie should have same SAYSO as before voting");
+      assert.equal(deployerAfter, deployerBefore, "Deployer should have same SAYSO as before voting");
+    });
+
     it("tie event is emitted", async function () {
       const { usdc, sayso, oracle, factory } = await deployInfrastructure();
       const now = await getNow();

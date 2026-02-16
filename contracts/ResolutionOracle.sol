@@ -180,12 +180,13 @@ contract ResolutionOracle is ERC2771Context, ReentrancyGuard, Ownable {
             return 0;
         }
 
+        // Tie: everyone gets their stake back (proportional refund)
+        if (yesTotal == noTotal) {
+            return yesVotesByUser[pool][user] + noVotesByUser[pool][user];
+        }
+
         bool yesWins = yesTotal > noTotal;
         uint256 winningTotal = yesWins ? yesTotal : noTotal;
-
-        if (winningTotal == 0) {
-            return 0;
-        }
 
         uint256 userWinningVotes = yesWins
             ? yesVotesByUser[pool][user]
