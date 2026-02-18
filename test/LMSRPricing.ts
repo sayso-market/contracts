@@ -215,14 +215,14 @@ describe("LMSR Pricing Correctness", async function () {
         `  Effective price per share: ${effectiveSharePrice.toFixed(2)}%`
       );
 
-      // At 25% price, 50 USDC (49.75 after fees) should buy ~130-150 shares
-      // Binary search upper bound must be large enough to find the correct amount
+      // With b=1500 (15x multiplier), buying 100 NO on a $100 pool pushes YES to ~47%
+      // So 50 USDC buys fewer shares than with the old 1.44x multiplier
 
-      const minExpectedShares = 120n * 10n ** 18n; // At least 120 shares for 50 USDC at 25% price
+      const minExpectedShares = 90n * 10n ** 18n; // At least 90 shares for 50 USDC at ~47% price
 
       assert.ok(
         yesSharesReceived >= minExpectedShares,
-        `Bob should receive at least ${formatUnits(minExpectedShares, 18)} shares when buying cheap YES at 25% price. ` +
+        `Bob should receive at least ${formatUnits(minExpectedShares, 18)} shares when buying cheap YES. ` +
           `Got ${formatUnits(yesSharesReceived, 18)} shares.`
       );
     });

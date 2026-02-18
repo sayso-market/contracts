@@ -82,18 +82,19 @@ describe("Market Seeding", async function () {
     const pricePercent = (Number(price) / 1e18) * 100;
     assert(pricePercent > 50 && pricePercent < 70, `Price ${pricePercent}% should be > 50% (YES-heavy)`);
 
-    // Verify qYes and qNo (in 18 decimals for LMSR)
+    // Verify qYes and qNo are amplified (virtual liquidity for LMSR pricing)
     const info = await market.read.getMarketInfo();
     const yesAmount18 = yesAmount * 1000000000000n; // Scale 6 decimals to 18
     const noAmount18 = noAmount * 1000000000000n;
-    assert.equal(info[4], yesAmount18); // qYes in 18 decimals
-    assert.equal(info[5], noAmount18); // qNo in 18 decimals
+    const amplifier = 15n; // b/totalSeed = 15x
+    assert.equal(info[4], yesAmount18 * amplifier); // qYes amplified
+    assert.equal(info[5], noAmount18 * amplifier); // qNo amplified
 
-    // Verify creator received initial shares (in 18 decimals)
+    // Verify creator received actual shares (not amplified)
     const creatorYesShares = await market.read.yesBalances([creator.account.address]);
     const creatorNoShares = await market.read.noBalances([creator.account.address]);
-    assert.equal(creatorYesShares, yesAmount18); // Shares in 18 decimals
-    assert.equal(creatorNoShares, noAmount18); // Shares in 18 decimals
+    assert.equal(creatorYesShares, yesAmount18); // Actual shares
+    assert.equal(creatorNoShares, noAmount18); // Actual shares
 
     console.log(`\n✓ Market created with ${formatUnits(totalSeed, 6)} USDC seed`);
     console.log(`  YES: ${formatUnits(yesAmount, 6)} USDC (${pricePercent}%)`);
@@ -220,18 +221,19 @@ describe("Market Seeding", async function () {
     const pricePercent = (Number(price) / 1e18) * 100;
     assert(pricePercent > 30 && pricePercent < 50, `Price ${pricePercent}% should be < 50% (NO-heavy)`);
 
-    // Verify qYes and qNo (in 18 decimals for LMSR)
+    // Verify qYes and qNo are amplified (virtual liquidity for LMSR pricing)
     const info = await market.read.getMarketInfo();
     const yesAmount18 = yesAmount * 1000000000000n; // Scale 6 decimals to 18
     const noAmount18 = noAmount * 1000000000000n;
-    assert.equal(info[4], yesAmount18); // qYes in 18 decimals
-    assert.equal(info[5], noAmount18); // qNo in 18 decimals
+    const amplifier = 15n; // b/totalSeed = 15x
+    assert.equal(info[4], yesAmount18 * amplifier); // qYes amplified
+    assert.equal(info[5], noAmount18 * amplifier); // qNo amplified
 
-    // Verify creator received initial shares (in 18 decimals)
+    // Verify creator received actual shares (not amplified)
     const creatorYesShares = await market.read.yesBalances([creator.account.address]);
     const creatorNoShares = await market.read.noBalances([creator.account.address]);
-    assert.equal(creatorYesShares, yesAmount18); // Shares in 18 decimals
-    assert.equal(creatorNoShares, noAmount18); // Shares in 18 decimals
+    assert.equal(creatorYesShares, yesAmount18); // Actual shares
+    assert.equal(creatorNoShares, noAmount18); // Actual shares
 
     console.log(`\n✓ Market created with ${formatUnits(totalSeed, 6)} USDC seed`);
     console.log(`  YES: ${formatUnits(yesAmount, 6)} USDC (${pricePercent}%)`);
@@ -286,11 +288,10 @@ describe("Market Seeding", async function () {
     const marketAddress = (await factory.read.getAllMarkets())[0];
     const market = await viem.getContractAt("AMM", marketAddress);
 
-    // Verify price is heavily YES-biased (LMSR gives ~67% for 100/0 split)
-    // Note: LMSR never reaches exactly 100% even with 0 NO shares
+    // Verify price is YES-biased (amplified q gives e^1/(e^1+e^0) ≈ 73.1% for 100/0)
     const price = await market.read.price();
     const pricePercent = (Number(price) / 1e18) * 100;
-    assert(pricePercent > 60 && pricePercent < 80, `Price ${pricePercent}% should be >60% (100% YES seed)`);
+    assert(pricePercent > 65 && pricePercent < 80, `Price ${pricePercent}% should be 65-80% (100% YES seed with amplification)`);
 
     // Verify pool has full seed
     const poolBalance = await usdc.read.balanceOf([market.address]);

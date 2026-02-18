@@ -107,15 +107,20 @@ contract AMM is ERC2771Context, ReentrancyGuard {
         feeCollector = _feeCollector;
         liquidityParameter = _liquidityParameter;
 
-        // Initialize LMSR with seed liquidity (convert from 6 decimals to 18 decimals)
-        // Factory's seed becomes initial outstanding shares
-        qYes = _initialYesTokens * 1e12; // 6 decimals → 18 decimals
-        qNo = _initialNoTokens * 1e12; // 6 decimals → 18 decimals
+        // Initialize LMSR pricing state with amplified shares
+        // Amplifier = b / totalSeed so initial price reflects the seed split
+        // e.g. 40/60 seed → ~45/55 price instead of ~50/50
+        uint256 totalSeedScaled = (_initialYesTokens + _initialNoTokens) * 1e12;
+        uint256 amplifier = totalSeedScaled > 0 ? _liquidityParameter / totalSeedScaled : 1;
+        qYes = _initialYesTokens * 1e12 * amplifier;
+        qNo = _initialNoTokens * 1e12 * amplifier;
 
         // Initialize internal accounting with seed amount
         totalDeposited = _initialYesTokens + _initialNoTokens;
 
-        // Seed provider (creator) receives initial shares
+        // Seed provider receives actual shares (not amplified)
+        // qYes/qNo track LMSR state (includes virtual liquidity for pricing)
+        // totalYes/totalNo track actual economic shares (for claims)
         if (_initialYesTokens > 0) {
             yesBalances[_seedProvider] = _initialYesTokens * 1e12;
             totalYes = _initialYesTokens * 1e12;

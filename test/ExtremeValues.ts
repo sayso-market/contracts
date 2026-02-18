@@ -203,7 +203,7 @@ describe("Extreme Values & Boundaries", async function () {
   });
 
   describe("Liquidity Parameter Extremes", function () {
-    it("should handle minimum liquidity parameter (b ≈ 14.4 for 10 USDC seed)", async function () {
+    it("should handle minimum liquidity parameter (b = 150 for 10 USDC seed)", async function () {
       const { usdc, factory } = await deployAll();
 
       const now = await getNow();
@@ -231,8 +231,8 @@ describe("Extreme Values & Boundaries", async function () {
       const liquidityParameter = await market.read.liquidityParameter();
       console.log(`  Liquidity parameter (b): ${Number(liquidityParameter) / 1e18}`);
 
-      // b = totalSeed * 1e12 * 1.44 = 10 * 1e12 * 1.44 = 14.4e12 (in 18-decimal format)
-      const expectedB = BigInt(10) * BigInt(1e12) * 144n / 100n;
+      // b = totalSeed * 1e12 * 15 = 10 * 1e12 * 15 = 150e12 (in 18-decimal format)
+      const expectedB = BigInt(10) * BigInt(1e12) * 15n;
       console.log(`  Expected b: ${Number(expectedB) / 1e18}`);
 
       // Small market should have high slippage
@@ -249,7 +249,7 @@ describe("Extreme Values & Boundaries", async function () {
       console.log(`  Price impact: ${priceImpact.toFixed(2)}%`);
 
       // With low liquidity, 5 USDC trade should have significant impact
-      assert.ok(priceImpact > 5, "Low liquidity should cause >5% price impact for 50% of seed");
+      assert.ok(priceImpact > 0.5, "Low liquidity should cause >0.5% price impact for 50% of seed");
     });
 
     it("should handle large liquidity parameter (b ≈ 1440 for 1000 USDC seed)", async function () {

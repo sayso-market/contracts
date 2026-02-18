@@ -160,9 +160,9 @@ library LMSR {
 
         // Binary search bounds
         uint256 low = 0;
-        // Upper bound: 5x handles down to ~20% price
-        // Conservative to avoid PRBMath overflow
-        uint256 high = targetCost * 5;
+        // Upper bound: 20x handles prices down to ~5%
+        // With higher liquidity parameter, more shares per dollar at low prices
+        uint256 high = targetCost * 20;
         uint256 shares = 0;
 
         // Binary search (max 256 iterations)

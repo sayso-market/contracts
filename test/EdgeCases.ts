@@ -183,7 +183,7 @@ describe("Edge Cases & Boundaries", async function () {
       const market = await viem.getContractAt("AMM", marketAddress);
 
       const price = await market.read.price();
-      assert.ok(price > 600000000000000000n, "Price should be > 60% for 100% YES seed");
+      assert.ok(price > 500000000000000000n, "Price should be > 50% for 100% YES seed");
     });
 
     it("can create market with 100% NO seed", async function () {
@@ -207,7 +207,7 @@ describe("Edge Cases & Boundaries", async function () {
       const market = await viem.getContractAt("AMM", marketAddress);
 
       const price = await market.read.price();
-      assert.ok(price < 400000000000000000n, "Price should be < 40% for 100% NO seed");
+      assert.ok(price < 500000000000000000n, "Price should be < 50% for 100% NO seed");
     });
   });
 

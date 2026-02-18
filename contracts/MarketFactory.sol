@@ -73,10 +73,10 @@ contract MarketFactory is Ownable {
         }
 
         // Calculate LMSR liquidity parameter (b)
-        // Formula: b = totalSeed / ln(numOutcomes) ≈ totalSeed * 1.44
-        // Convert from 6 decimals to 18 decimals and apply multiplier
         // b determines market depth: higher b = less slippage, more liquidity
-        uint256 liquidityParameter = (totalSeed * 1e12 * 144) / 100; // totalSeed * 1e12 * 1.44
+        // Using 15x multiplier so $50 bets on a 10 USDC seed move price ~15% (not 50%+)
+        // Safe because payouts are bounded by actual deposits, not LMSR cost function
+        uint256 liquidityParameter = totalSeed * 1e12 * 15;
 
         // Deploy market with initial liquidity
         AMM market = new AMM(

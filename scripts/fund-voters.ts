@@ -10,7 +10,7 @@ import { createPublicClient, createWalletClient, http, parseUnits, formatUnits }
 import { sei } from 'viem/chains';
 import { privateKeyToAccount } from 'viem/accounts';
 
-const SAYSO_TOKEN = '0x24eF40d6AE92D65dE2A95555fC12Faf50c94B881' as `0x${string}`;
+const SAYSO_TOKEN = '0xd5fa8dfc6d349b4e63eea49b73283b192778d484' as `0x${string}`;
 
 const MINT_ABI = [
   {
@@ -35,6 +35,7 @@ const MINT_ABI = [
 const VOTERS = [
   { name: 'Voter A', address: '0xCBCBf3f4C536FC7445747F686f1c225Bb637c244' as `0x${string}` },
   { name: 'Voter B', address: '0xC3418dbED33AB668FD8Ec00ae29cbb769C4CD0EF' as `0x${string}` },
+  { name: 'william@kento.studio', address: '0xa39a11339c493CBE6294986C668d97Aa5D52383a' as `0x${string}` },
 ];
 
 const MINT_AMOUNT = parseUnits('10000', 18); // 10,000 SAYSO each
