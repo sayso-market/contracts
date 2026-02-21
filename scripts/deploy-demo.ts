@@ -1,12 +1,16 @@
 import { network } from "hardhat";
 import fs from "fs";
+import path from "path";
+
+const DEPLOYMENTS_FILE = path.resolve(import.meta.dirname, "../deployments.json");
 
 async function main() {
   const { viem } = await network.connect();
   const [deployer] = await viem.getWalletClients();
   const publicClient = await viem.getPublicClient();
 
-  console.log(`\nDeployer: ${deployer.account.address}`);
+  console.log(`\n=== DEMO DEPLOYMENT ===`);
+  console.log(`Deployer: ${deployer.account.address}`);
   const balance = await publicClient.getBalance({ address: deployer.account.address });
   console.log(`Balance:  ${Number(balance) / 1e18} SEI\n`);
 
@@ -29,7 +33,6 @@ async function main() {
   await delay(3000);
 
   // ── Phase 2: ResolutionOracle (needs SaySoToken, Forwarder) ──
-  // Note: factory = address(0) initially due to circular dependency
   console.log("\n── Phase 2: Deploying ResolutionOracle ──\n");
 
   const oracle = await viem.deployContract("ResolutionOracle", [
@@ -46,7 +49,7 @@ async function main() {
     mockUsdc.address,
     oracle.address,
     forwarder.address,
-    deployer.account.address, // fee collector = deployer for now
+    deployer.account.address, // fee collector = deployer
   ], { gas });
   console.log(`  MarketFactory    ${factory.address}`);
 
@@ -56,8 +59,9 @@ async function main() {
   await oracle.write.setFactory([factory.address]);
   console.log(`  Oracle.setFactory(${factory.address}) ✓`);
 
-  // ── Write deployments.json ────────────────────────────
-  const deployments = {
+  // ── Write deployments.json (demo key) ────────────────
+  const deploymentsFile = JSON.parse(fs.readFileSync(DEPLOYMENTS_FILE, "utf-8"));
+  deploymentsFile.demo = {
     network: "sei-mainnet",
     chainId: 1329,
     deployer: deployer.account.address,
@@ -93,8 +97,8 @@ async function main() {
     },
   };
 
-  fs.writeFileSync("deployments.json", JSON.stringify(deployments, null, 2) + "\n");
-  console.log("\n── deployments.json written ──\n");
+  fs.writeFileSync(DEPLOYMENTS_FILE, JSON.stringify(deploymentsFile, null, 2) + "\n");
+  console.log("\n── deployments.json updated (demo) ──\n");
 
   const endBalance = await publicClient.getBalance({ address: deployer.account.address });
   console.log(`Gas spent: ${Number(balance - endBalance) / 1e18} SEI`);

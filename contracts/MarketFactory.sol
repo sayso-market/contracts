@@ -255,4 +255,12 @@ contract MarketFactory is Ownable {
         feeCollector = _feeCollector;
         emit FeeCollectorUpdated(oldCollector, _feeCollector);
     }
+
+    // Recover any ERC20 tokens sent to this contract
+    function recoverTokens(ERC20 token, address recipient) public onlyOwner {
+        require(recipient != address(0), "Recipient cannot be zero address");
+        uint256 balance = token.balanceOf(address(this));
+        require(balance > 0, "No tokens to recover");
+        require(token.transfer(recipient, balance), "Transfer failed");
+    }
 }

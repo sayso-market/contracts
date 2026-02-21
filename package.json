@@ -4,13 +4,12 @@
   "type": "module",
   "scripts": {
     "test": "npx hardhat test",
-    "deploy:token": "npx hardhat ignition deploy ignition/modules/SaySoToken.ts --network sei",
-    "deploy:oracle": "npx hardhat ignition deploy ignition/modules/Oracle.ts --network sei",
-    "deploy:amm": "npx hardhat ignition deploy ignition/modules/AMM.ts --network sei --reset",
-    "deploy:mockusdc": "npx hardhat ignition deploy ignition/modules/MockUSDC.ts --network sei --reset"
+    "deploy:demo": "npx hardhat run scripts/deploy-demo.ts --network sei",
+    "deploy:prod": "npx hardhat run scripts/deploy-prod.ts --network sei"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-ignition": "^3.0.6",
+    "@nomicfoundation/hardhat-ledger": "^3.0.2",
     "@nomicfoundation/hardhat-toolbox-viem": "^5.0.1",
     "@types/date-fns": "^2.5.3",
     "@types/node": "^22.19.5",

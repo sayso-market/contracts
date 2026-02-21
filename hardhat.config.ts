@@ -1,9 +1,10 @@
 import hardhatToolboxViemPlugin from "@nomicfoundation/hardhat-toolbox-viem";
+import hardhatLedgerPlugin from "@nomicfoundation/hardhat-ledger";
 import { defineConfig } from "hardhat/config";
 import "dotenv/config";
 
 export default defineConfig({
-  plugins: [hardhatToolboxViemPlugin],
+  plugins: [hardhatToolboxViemPlugin, hardhatLedgerPlugin],
   solidity: {
     version: "0.8.28",
     settings: {
@@ -28,6 +29,7 @@ export default defineConfig({
       chainType: "l1",
       url: "https://evm-rpc.sei-apis.com",
       accounts: process.env.DEPLOYER ? [process.env.DEPLOYER] : [],
+      ledgerAccounts: process.env.LEDGER_ADDRESS ? [process.env.LEDGER_ADDRESS] : [],
       chainId: 1329,
     },
   },
