@@ -38,32 +38,32 @@
     "network": "sei-mainnet",
     "chainId": 1329,
     "deployer": "0x29a82ce3796694bc28ca0e7149e4f15253652fd8",
-    "deployedAt": "2026-02-21T18:46:56.739Z",
+    "deployedAt": "2026-02-21T19:08:20.279Z",
     "contracts": {
       "USDC": {
         "address": "0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392",
         "note": "Native Circle USDC on Sei (not deployed by us)"
       },
       "SaySoToken": {
-        "address": "0x816543B656cBADfED8149DBAddD62381DD920F82",
+        "address": "0xF1ba7FEDD13D1259de09626c2a6636B943896d2d",
         "note": "Governance token, onlyOwner mint, 100M max supply"
       },
       "SaySoForwarder": {
-        "address": "0xf39125De1c418C5fe3a08637A9aB82B8A14150E2",
+        "address": "0x20029EF4982577005e8f7425ED1C27f3ca724464",
         "note": "ERC-2771 trusted forwarder for gasless meta-transactions"
       },
       "ResolutionOracle": {
-        "address": "0xE09d161975f9Ce1c48009b81C677ce28ccb431bB",
-        "votingToken": "0x816543B656cBADfED8149DBAddD62381DD920F82",
-        "trustedForwarder": "0xf39125De1c418C5fe3a08637A9aB82B8A14150E2",
-        "factory": "0xb2D72ba3C8F3cECD9968fEED91B49d820ad223bF",
+        "address": "0x56398aEb6D6A2da4A0E769D150c4287e42597A88",
+        "votingToken": "0xF1ba7FEDD13D1259de09626c2a6636B943896d2d",
+        "trustedForwarder": "0x20029EF4982577005e8f7425ED1C27f3ca724464",
+        "factory": "0x7F9522c1A887Aa6F6ed263D6bb6641Ca72C67562",
         "note": "Voting = staking with ERC-2771 gasless support, per-pool, during resolution window"
       },
       "MarketFactory": {
-        "address": "0xb2D72ba3C8F3cECD9968fEED91B49d820ad223bF",
+        "address": "0x7F9522c1A887Aa6F6ed263D6bb6641Ca72C67562",
         "tradingToken": "0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392",
-        "oracle": "0xE09d161975f9Ce1c48009b81C677ce28ccb431bB",
-        "trustedForwarder": "0xf39125De1c418C5fe3a08637A9aB82B8A14150E2",
+        "oracle": "0x56398aEb6D6A2da4A0E769D150c4287e42597A88",
+        "trustedForwarder": "0x20029EF4982577005e8f7425ED1C27f3ca724464",
         "feeCollector": "0x29a82ce3796694bc28ca0e7149e4f15253652fd8",
         "note": "Permissionless market creation with LMSR pricing, 0.5% protocol fee"
       }

@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract SaySoToken is ERC20, ERC20Permit, Ownable {
-    uint256 public maxSupply = 100000000000000000000000000; // 100m
+    uint256 public maxSupply = 1000000000000000000000000000; // 1B
     constructor() ERC20("SaySo Token", "SAY") ERC20Permit("SaySo Token") Ownable(msg.sender) {
         _mint(msg.sender, 1000000000000000000000); // 1k
     }
