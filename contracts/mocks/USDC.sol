@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Permit.sol";
 /// @title MockUSDC with ERC-2612 Permit
 /// @notice Mimics real USDC's permit functionality for gasless approvals
 contract USDC is ERC20, ERC20Permit {
-    constructor() ERC20("USDC", "USDC") ERC20Permit("USDC") {
+    constructor() ERC20("USD Coin", "USDC") ERC20Permit("USD Coin") {
         _mint(msg.sender, 1000000000000000); // 1B USDC
     }
 

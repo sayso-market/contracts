@@ -69,7 +69,7 @@ async function main() {
     contracts: {
       MockUSDC: {
         address: mockUsdc.address,
-        note: "Mock USDC: name='USD Coin', EIP-712 version='2', decimals=6, open mint",
+        note: "Mock USDC: name='USDC', EIP-712 version='2', decimals=6, open mint",
       },
       SaySoToken: {
         address: saysoToken.address,

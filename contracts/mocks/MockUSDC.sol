@@ -8,8 +8,8 @@ import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import "@openzeppelin/contracts/utils/Nonces.sol";
 
 /// @title MockUSDC with Production-Grade Parameters
-/// @notice Exactly matches Circle's USDC permit parameters for accurate testing
-/// @dev name="USD Coin", version="2" to match real USDC on mainnet
+/// @notice Exactly matches Circle's USDC permit parameters on Sei for accurate testing
+/// @dev name="USD Coin", version="2" to match real Circle USDC (FiatTokenV2) on Sei mainnet
 contract MockUSDC is ERC20, IERC20Permit, EIP712, Nonces {
     mapping(address => uint256) private _nonces;
 
@@ -19,12 +19,12 @@ contract MockUSDC is ERC20, IERC20Permit, EIP712, Nonces {
     /**
      * @dev Initializes the contract with production USDC parameters:
      * - name: "USD Coin"
-     * - symbol: "USDC" 
+     * - symbol: "USDC"
      * - EIP712 domain version: "2"
      */
-    constructor() 
-        ERC20("USD Coin", "USDC") 
-        EIP712("USD Coin", "2") // Version "2" to match production USDC
+    constructor()
+        ERC20("USD Coin", "USDC")
+        EIP712("USD Coin", "2") // Matches real Circle USDC on Sei
     {
         _mint(msg.sender, 1000000000000000); // 1B USDC
     }

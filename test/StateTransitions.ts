@@ -589,17 +589,15 @@ describe("State Transition Edge Cases", async function () {
       const markets = await factory.read.getMarkets([0n, 1n]);
       const market = await viem.getContractAt("AMM", markets[0]);
 
-      // Advance close to endTime but leave room for tx blocks
-      // After advanceTime, mint/approve/buyYes add 3 more blocks (~1s each).
-      // Use 93 to ensure buyYes lands at ~now+96-97 which is <= effectiveTo (now+100)
-      await advanceTime(93);
-
+      // Mint and approve before advancing time so only buyYes remains
       await usdc.write.mint([alice.account.address, USDC(100)]);
       await usdc.write.approve([market.address, USDC(100)], { account: alice.account });
 
-      console.log(`  Trading near effectiveTo boundary`);
+      // Use exact timestamp control to place buyYes right at effectiveTo
+      await provider.send("evm_setNextBlockTimestamp", [endTime]);
+      console.log(`  Trading at exact effectiveTo boundary`);
 
-      // Should work near boundary (<= check)
+      // Should work at boundary (<= check)
       await market.write.buyYes([USDC(50)], { account: alice.account });
 
       const yesBalance = await market.read.yesBalances([alice.account.address]);
