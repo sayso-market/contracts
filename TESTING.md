@@ -2,9 +2,9 @@
 
 ## Overview
 
-The SaySo smart contract test suite provides comprehensive coverage of all contract functionality, security measures, edge cases, and mathematical correctness. All 183 tests pass successfully across 17 test files, validating the production-readiness of the contracts.
+The SaySo smart contract test suite provides comprehensive coverage of all contract functionality, security measures, edge cases, and mathematical correctness. All 221 tests pass successfully across 18 test files, validating the production-readiness of the contracts.
 
-**Test Status: 183/183 passing (100%)**
+**Test Status: 221/221 passing (100%)**
 
 ## Test Framework
 
@@ -239,7 +239,7 @@ Tests covering access control, reentrancy protection, and attack vectors.
 13. **Factory constructor rejects zero address for trading token**
     - Ensures token address is valid
 
-### 5. Edge Cases Tests (17 tests) - `test/EdgeCases.ts`
+### 5. Edge Cases Tests (18 tests) - `test/EdgeCases.ts`
 
 Boundary conditions and unusual scenarios.
 
@@ -383,7 +383,19 @@ Tests for various initial liquidity configurations.
    - Extreme initial bias (~90% YES)
    - Still functional, but very skewed market
 
-### 8. LMSR Pricing Tests (2 tests) - `test/LMSRPricing.ts`
+### 8. LMSR Precision Tests (19 tests) - `test/LMSRPrecision.ts`
+
+Tests for numerical precision and rounding behavior in LMSR calculations across various magnitudes and edge cases.
+
+#### Tests:
+- Precision of exp18/ln functions across value ranges
+- Cost function precision with small and large inputs
+- Buy/sell cost precision at various pool sizes
+- Price calculation accuracy near boundaries (0%, 50%, 100%)
+- Round-trip consistency (buy then sell returns similar amount)
+- Precision under extreme liquidity parameters
+
+### 9. LMSR Pricing Tests (2 tests) - `test/LMSRPricing.ts`
 
 Tests validating LMSR pricing correctness.
 
@@ -397,39 +409,39 @@ Tests validating LMSR pricing correctness.
    - Tests that sharesForCost works with low-probability outcomes
    - Upper bound calculation handles extreme cases
 
-### 9. Admin Mutations (17 tests) - `test/AdminMutations.ts`
+### 10. Admin Mutations (17 tests) - `test/AdminMutations.ts`
 
 Tests for factory admin functions: setOracle, setTradingToken, setTrustedForwarder, setFeeCollector. Verifies that changes only affect new markets, not existing ones.
 
-### 10. View Functions (17 tests) - `test/ViewFunctions.ts`
+### 11. View Functions (17 tests) - `test/ViewFunctions.ts`
 
 Tests for all read-only contract functions: price queries, balance checks, market status, oracle voting info, and paginated market getters.
 
-### 11. State Transitions (13 tests) - `test/StateTransitions.ts`
+### 12. State Transitions (13 tests) - `test/StateTransitions.ts`
 
 Tests for market phase transitions: trading → resolution → resolved → claiming. Validates that functions are only callable in their correct phase.
 
-### 12. Failure Modes (13 tests) - `test/FailureModes.ts`
+### 13. Failure Modes (13 tests) - `test/FailureModes.ts`
 
 Tests for expected error handling: insufficient balances, unauthorized access, invalid parameters, and graceful degradation.
 
-### 13. Precision (11 tests) - `test/Precision.ts`
+### 14. Precision (11 tests) - `test/Precision.ts`
 
 Tests for numerical precision in LMSR calculations, fee computations, and share/USDC conversions across various magnitudes.
 
-### 14. Meta Transactions (11 tests) - `test/MetaTransactions.ts`
+### 15. Meta Transactions (11 tests) - `test/MetaTransactions.ts`
 
 Tests for ERC-2771 gasless transaction support: buying, selling, and claiming via the trusted forwarder.
 
-### 15. Extreme Values (10 tests) - `test/ExtremeValues.ts`
+### 16. Extreme Values (10 tests) - `test/ExtremeValues.ts`
 
 Tests for overflow/underflow edge cases, maximum trade sizes, and boundary conditions in LMSR math.
 
-### 16. Economic Attacks (8 tests) - `test/EconomicAttacks.ts`
+### 17. Economic Attacks (8 tests) - `test/EconomicAttacks.ts`
 
 Tests for resistance to economic attack vectors: donation attacks, sandwich attacks, front-running, and manipulation attempts.
 
-### 17. Multi-User Scenarios (6 tests) - `test/MultiUserScenarios.ts`
+### 18. Multi-User Scenarios (6 tests) - `test/MultiUserScenarios.ts`
 
 Tests for complex multi-party interactions: concurrent trading, voting conflicts, and claim ordering.
 
@@ -458,7 +470,8 @@ REPORT_GAS=true npm test
 |----------|-------|----------|
 | E2E Tests | 9 | Full lifecycle, all flows |
 | LMSR Library | 19 | Complete math validation |
-| Edge Cases | 17 | Boundaries + ties + no-votes |
+| LMSR Precision | 19 | Precision and rounding for LMSR |
+| Edge Cases | 18 | Boundaries + ties + no-votes |
 | Admin Mutations | 17 | Factory admin function behavior |
 | View Functions | 17 | Read-only contract functions |
 | Security | 15 | Access control + reentrancy + flash loans |
@@ -473,7 +486,7 @@ REPORT_GAS=true npm test
 | Market Seeding | 4 | Various liquidity configs |
 | LMSR Pricing | 2 | Pricing correctness |
 | Walkthrough | 1 | Realistic 4-user scenario |
-| **Total** | **183** | **100% passing** |
+| **Total** | **221** | **100% passing** |
 
 ## Key Test Insights
 
@@ -573,4 +586,4 @@ The test suite comprehensively validates all aspects of the SaySo prediction mar
 - **Economics:** Incentives aligned, payouts fair
 - **Edge Cases:** Boundaries and unusual scenarios handled gracefully
 
-**Status: Production-ready with 100% test pass rate** (183/183 tests)
+**Status: Production-ready with 100% test pass rate** (221/221 tests)

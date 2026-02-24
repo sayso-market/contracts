@@ -13,19 +13,32 @@ Users trade on binary outcome markets (YES/NO) using USDC. All betting is gasles
 | `AMM.sol` | Individual market pool — buy/sell YES/NO shares with USDC |
 | `ResolutionOracle.sol` | Voting = staking. SAYSO holders vote per-pool during the resolution window |
 | `MarketFactory.sol` | Permissionless factory for deploying new markets |
-| `SaySoToken.sol` | SAYSO governance token (onlyOwner mint, 100M max supply) |
+| `SaySoToken.sol` | SAYSO governance token (onlyOwner mint, 1B max supply) |
 | `SaySoForwarder.sol` | ERC-2771 trusted forwarder for gasless meta-transactions |
-| `MockUSDC.sol` | Mock USDC matching Circle's real USDC on Sei (name="USD Coin", version="2") |
+| `MockUSDC.sol` | Mock USDC matching Circle's real USDC on Sei (EIP-712 name="USDC", version="2") |
+| `LMSR.sol` | Logarithmic Market Scoring Rule library using PRBMath |
 
 ### Deployed Addresses (Sei Mainnet)
 
+**Demo Environment:**
+
 | Contract | Address |
 |---|---|
-| MockUSDC | `0xad1e5b9cc88da1fb2319e38958edabcbf597ff0d` |
-| SaySoToken | `0x136815fbf6a8d097465c91c9ab25872807d17371` |
-| SaySoForwarder | `0xf920aaf29cae064fe2a47069cb86f9357ac65b9b` |
-| ResolutionOracle | `0xc7ec37ac0654a7c85ce860d9e875a07dc2d636b4` |
-| MarketFactory | `0x3c32f754a5b0ed4f0880c6f37021750ed742dd78` |
+| MockUSDC | `0x7c02d979738c87753ac204e14091379d0de66d5b` |
+| SaySoToken | `0xad02ef7a3a0041cef28a02f3c3761b2b2b594e8a` |
+| SaySoForwarder | `0xc3d6fefefaf4e6306b2b84bcd54a8c4fd3b26667` |
+| ResolutionOracle | `0x347aab0fd72e540fef0eab7a7d2c137d726cb7e9` |
+| MarketFactory | `0x2e0bebd06a8ccc4da599d6e95a69c62f62022136` |
+
+**Production Environment:**
+
+| Contract | Address |
+|---|---|
+| USDC (Circle) | `0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392` |
+| SaySoToken | `0x2006Dfe910bF22D5019d25e71D66976827C7F237` |
+| SaySoForwarder | `0x7B160cE3a567ebE46716Ae114537DB13141b7c3c` |
+| ResolutionOracle | `0xaDF0Ae112c8D13A9E69a305D92219e6d72AD7F28` |
+| MarketFactory | `0x7279a222DF7a079496744357eB66B50c23265BF9` |
 
 See [deployments.json](deployments.json) for full details.
 
@@ -66,12 +79,13 @@ cp .env.example .env
 npm test
 ```
 
-**Test Suite Status: 183/183 tests passing (100%)**
+**Test Suite Status: 221/221 tests passing (100%)**
 
-Comprehensive test coverage across 17 test files:
+Comprehensive test coverage across 18 test files:
 - **E2E Tests** (9) - Full lifecycle with invariant checks
 - **LMSR Library** (19) - Complete LMSR math verification
-- **Edge Cases** (17) - MIN_DEPOSIT boundaries, ties, no-votes scenarios
+- **LMSR Precision** (19) - Precision and rounding for LMSR calculations
+- **Edge Cases** (18) - MIN_DEPOSIT boundaries, ties, no-votes scenarios
 - **Admin Mutations** (17) - Factory admin function behavior
 - **View Functions** (17) - Read-only contract functions
 - **Security** (15) - Flash loan protection, access control, reentrancy
@@ -91,16 +105,23 @@ See [TESTING.md](TESTING.md) for detailed test documentation.
 
 ## Deployment
 
-### Deploy all contracts to Sei
+### Deploy demo environment to Sei
 
 ```bash
-npx hardhat run scripts/deploy-all.ts --network sei
+npx hardhat run scripts/deploy-demo.ts --network sei
 ```
 
-This deploys in dependency order:
-1. MockUSDC, SaySoToken, SaySoForwarder (no dependencies)
-2. ResolutionOracle (needs SaySoToken)
-3. MarketFactory (needs MockUSDC, ResolutionOracle, SaySoForwarder)
+### Deploy production environment to Sei
+
+```bash
+npx hardhat run scripts/deploy-prod.ts --network sei
+```
+
+Deployment deploys in dependency order:
+1. MockUSDC (demo only), SaySoToken, SaySoForwarder (no dependencies)
+2. ResolutionOracle (needs SaySoToken, SaySoForwarder)
+3. MarketFactory (needs USDC/MockUSDC, ResolutionOracle, SaySoForwarder)
+4. Wire oracle ↔ factory circular dependency
 
 Writes all addresses to `deployments.json` automatically.
 
@@ -125,13 +146,19 @@ Writes all addresses to `deployments.json` automatically.
 
 USDC approvals are also gasless via ERC-2612 `permit()` signatures.
 
-**Exception:** SAYSO voting on the ResolutionOracle is not gasless. Only internal team members hold SAYSO initially.
-
 ### Supported gasless functions
 
 - `buyYes(amount)` / `buyNo(amount)`
 - `sellYes(shares)` / `sellNo(shares)`
 - `claim()`
+
+## EIP-712 Domains
+
+| Contract | Name | Version | Notes |
+|---|---|---|---|
+| MockUSDC (demo) | `USDC` | `2` | Matches Circle USDC on Sei |
+| Circle USDC (prod) | `USDC` | `2` | Native Circle USDC |
+| SaySoForwarder | `SaySoForwarder` | `1` | ForwardRequest uses `uint48 deadline` |
 
 ## Development
 
