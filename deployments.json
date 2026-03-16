@@ -3,32 +3,32 @@
     "network": "sei-mainnet",
     "chainId": 1329,
     "deployer": "0x1eadf3406c46b516c100c33abd33b7d8006e2da5",
-    "deployedAt": "2026-02-23T20:43:54.815Z",
+    "deployedAt": "2026-03-16T22:35:29.376Z",
     "contracts": {
       "MockUSDC": {
-        "address": "0x7c02d979738c87753ac204e14091379d0de66d5b",
+        "address": "0xfbe37fca6c0f52c683359f9ca5c0741358cd5f01",
         "note": "Mock USDC: name='USDC', EIP-712 version='2', decimals=6, open mint"
       },
       "SaySoToken": {
-        "address": "0xad02ef7a3a0041cef28a02f3c3761b2b2b594e8a",
+        "address": "0x55964b91a8c4c76ba9241630dea4cd4e0546065a",
         "note": "Governance token, onlyOwner mint, 100M max supply"
       },
       "SaySoForwarder": {
-        "address": "0xc3d6fefefaf4e6306b2b84bcd54a8c4fd3b26667",
+        "address": "0xf92d76fcae718b5cefe6b06c611d8fc0ac2b0f9d",
         "note": "ERC-2771 trusted forwarder for gasless meta-transactions"
       },
       "ResolutionOracle": {
-        "address": "0x347aab0fd72e540fef0eab7a7d2c137d726cb7e9",
-        "votingToken": "0xad02ef7a3a0041cef28a02f3c3761b2b2b594e8a",
-        "trustedForwarder": "0xc3d6fefefaf4e6306b2b84bcd54a8c4fd3b26667",
-        "factory": "0x2e0bebd06a8ccc4da599d6e95a69c62f62022136",
+        "address": "0x241cb2bb4320c8e88bc2d6af6178fdb98676359e",
+        "votingToken": "0x55964b91a8c4c76ba9241630dea4cd4e0546065a",
+        "trustedForwarder": "0xf92d76fcae718b5cefe6b06c611d8fc0ac2b0f9d",
+        "factory": "0x67163bccb8813e4706b03dc9a5479e404121fdfb",
         "note": "Voting = staking with ERC-2771 gasless support, per-pool, during resolution window"
       },
       "MarketFactory": {
-        "address": "0x2e0bebd06a8ccc4da599d6e95a69c62f62022136",
-        "tradingToken": "0x7c02d979738c87753ac204e14091379d0de66d5b",
-        "oracle": "0x347aab0fd72e540fef0eab7a7d2c137d726cb7e9",
-        "trustedForwarder": "0xc3d6fefefaf4e6306b2b84bcd54a8c4fd3b26667",
+        "address": "0x67163bccb8813e4706b03dc9a5479e404121fdfb",
+        "tradingToken": "0xfbe37fca6c0f52c683359f9ca5c0741358cd5f01",
+        "oracle": "0x241cb2bb4320c8e88bc2d6af6178fdb98676359e",
+        "trustedForwarder": "0xf92d76fcae718b5cefe6b06c611d8fc0ac2b0f9d",
         "feeCollector": "0x1eadf3406c46b516c100c33abd33b7d8006e2da5",
         "note": "Permissionless market creation with LMSR pricing, 0.5% protocol fee"
       }
