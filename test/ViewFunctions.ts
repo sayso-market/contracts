@@ -70,6 +70,7 @@ describe("View Functions and Getters", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -86,6 +87,7 @@ describe("View Functions and Getters", async function () {
           now + 1500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -102,6 +104,7 @@ describe("View Functions and Getters", async function () {
           now + 450,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -130,6 +133,7 @@ describe("View Functions and Getters", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -146,6 +150,7 @@ describe("View Functions and Getters", async function () {
           now + 1500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -162,6 +167,7 @@ describe("View Functions and Getters", async function () {
           now + 100, // Voting closes soon
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -217,6 +223,7 @@ describe("View Functions and Getters", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -247,6 +254,7 @@ describe("View Functions and Getters", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -302,6 +310,7 @@ describe("View Functions and Getters", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -346,6 +355,7 @@ describe("View Functions and Getters", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -376,6 +386,7 @@ describe("View Functions and Getters", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -419,6 +430,7 @@ describe("View Functions and Getters", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -449,6 +461,7 @@ describe("View Functions and Getters", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -504,6 +517,7 @@ describe("View Functions and Getters", async function () {
           now + 500,
           USDC(60),
           USDC(40),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -555,6 +569,7 @@ describe("View Functions and Getters", async function () {
           resolutionClose,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -590,6 +605,7 @@ describe("View Functions and Getters", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -635,6 +651,7 @@ describe("View Functions and Getters", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -665,6 +682,7 @@ describe("View Functions and Getters", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -701,6 +719,7 @@ describe("View Functions and Getters", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );

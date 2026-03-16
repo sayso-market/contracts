@@ -62,6 +62,7 @@ describe("Extreme Values & Boundaries", async function () {
           now + 500,
           USDC(1000), // YES seed
           USDC(1),    // NO seed (minimum to avoid zero)
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -120,6 +121,7 @@ describe("Extreme Values & Boundaries", async function () {
           now + 500,
           USDC(1),    // YES seed
           USDC(1000), // NO seed
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -168,6 +170,7 @@ describe("Extreme Values & Boundaries", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -221,6 +224,7 @@ describe("Extreme Values & Boundaries", async function () {
           now + 500,
           USDC(5),
           USDC(5),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -270,6 +274,7 @@ describe("Extreme Values & Boundaries", async function () {
           now + 500,
           USDC(500),
           USDC(500),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -317,6 +322,7 @@ describe("Extreme Values & Boundaries", async function () {
           effectiveFrom + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -363,6 +369,7 @@ describe("Extreme Values & Boundaries", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -402,6 +409,7 @@ describe("Extreme Values & Boundaries", async function () {
           effectiveTo + 200,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -448,6 +456,7 @@ describe("Extreme Values & Boundaries", async function () {
           resolutionOpen + 100,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -496,6 +505,7 @@ describe("Extreme Values & Boundaries", async function () {
           now + 500,
           USDC(2500),
           USDC(2500),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );

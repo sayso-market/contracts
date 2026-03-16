@@ -60,6 +60,7 @@ describe("State Transition Edge Cases", async function () {
           now + 600,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -114,6 +115,7 @@ describe("State Transition Edge Cases", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -168,6 +170,7 @@ describe("State Transition Edge Cases", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -220,6 +223,7 @@ describe("State Transition Edge Cases", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -274,6 +278,7 @@ describe("State Transition Edge Cases", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -316,6 +321,7 @@ describe("State Transition Edge Cases", async function () {
           now + 500, // Voting closes
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -358,6 +364,7 @@ describe("State Transition Edge Cases", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -397,6 +404,7 @@ describe("State Transition Edge Cases", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -443,6 +451,7 @@ describe("State Transition Edge Cases", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -484,6 +493,7 @@ describe("State Transition Edge Cases", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -542,6 +552,7 @@ describe("State Transition Edge Cases", async function () {
           startTime + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -582,6 +593,7 @@ describe("State Transition Edge Cases", async function () {
           endTime + 300,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -619,6 +631,7 @@ describe("State Transition Edge Cases", async function () {
           now + 600,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );

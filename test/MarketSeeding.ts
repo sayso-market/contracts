@@ -64,6 +64,7 @@ describe("Market Seeding", async function () {
       BigInt(resolutionClose),
       yesAmount,
       noAmount,
+      "0x0000000000000000000000000000000000000000" as `0x${string}`,
     ], { account: creator.account });
 
     const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -143,6 +144,7 @@ describe("Market Seeding", async function () {
       BigInt(resolutionClose),
       USDC(5), // 5 USDC YES
       USDC(5), // 5 USDC NO
+      "0x0000000000000000000000000000000000000000" as `0x${string}`,
     ]);
 
     const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -203,6 +205,7 @@ describe("Market Seeding", async function () {
       BigInt(resolutionClose),
       yesAmount,
       noAmount,
+      "0x0000000000000000000000000000000000000000" as `0x${string}`,
     ], { account: creator.account });
 
     const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -283,6 +286,7 @@ describe("Market Seeding", async function () {
       BigInt(resolutionClose),
       USDC(100), // 100% YES
       0n,        // 0% NO
+      "0x0000000000000000000000000000000000000000" as `0x${string}`,
     ], { account: creator.account });
 
     const marketAddress = (await factory.read.getAllMarkets())[0];

@@ -69,6 +69,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(5),
         USDC(5),
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -102,6 +103,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(5),
         USDC(5),
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -135,6 +137,7 @@ describe("Edge Cases & Boundaries", async function () {
           BigInt(now + 500),
           USDC(4.999),
           USDC(5),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ]),
         /Seed below minimum|MIN_SEED/i,
         "Should reject seed below 10 USDC"
@@ -156,6 +159,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(5),
         USDC(5),
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const markets = await factory.read.getAllMarkets();
@@ -177,6 +181,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(100), // All YES
         USDC(0),   // No NO
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -201,6 +206,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(0),   // No YES
         USDC(100), // All NO
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -227,6 +233,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(5),
         USDC(5),
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -262,6 +269,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(5),
         USDC(5),
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -302,6 +310,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(5),
         USDC(5),
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -339,6 +348,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(5),
         USDC(5),
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -379,6 +389,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(5),
         USDC(5),
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -425,6 +436,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(5),
         USDC(5),
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -459,6 +471,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(5),
         USDC(5),
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -506,6 +519,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(5),
         USDC(5),
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -571,6 +585,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(5),
         USDC(5),
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -632,6 +647,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(5),
         USDC(5),
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -680,6 +696,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(5),
         USDC(5),
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -739,6 +756,7 @@ describe("Edge Cases & Boundaries", async function () {
         BigInt(now + 500),
         USDC(5),
         USDC(5),
+        "0x0000000000000000000000000000000000000000" as `0x${string}`,
       ]);
 
       const marketAddress = (await factory.read.getAllMarkets())[0];

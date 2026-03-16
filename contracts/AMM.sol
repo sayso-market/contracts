@@ -17,6 +17,10 @@ contract AMM is ERC2771Context, ReentrancyGuard {
     ERC20 public token;
     ResolutionOracle public oracle;
 
+    // Oracle resolution: if resolver != address(0), only resolver can resolve via resolveAsOracle
+    address public immutable resolver;
+    bytes32 public proofHash;
+
     // Fee configuration (0.5% = 50 basis points)
     uint256 public constant FEE_BPS = 50;
     uint256 public constant BPS_DENOMINATOR = 10000;
@@ -65,6 +69,7 @@ contract AMM is ERC2771Context, ReentrancyGuard {
     event SharesSold(address indexed seller, bool isYes, uint256 shares, uint256 payout, uint256 newPrice);
     event MarketResolved(bool outcome, uint256 yesVotes, uint256 noVotes);
     event MarketResolvedWithTie(uint256 yesVotes, uint256 noVotes);
+    event MarketResolvedByOracle(bool outcome, bytes32 proofHash, address resolver);
     event Claimed(address indexed user, uint256 amount);
     event FeeCollected(address indexed buyer, uint256 feeAmount);
 
@@ -81,7 +86,8 @@ contract AMM is ERC2771Context, ReentrancyGuard {
         uint256 _initialNoTokens,
         address _feeCollector,
         uint256 _liquidityParameter,
-        address _seedProvider
+        address _seedProvider,
+        address _resolver
     ) ERC2771Context(_trustedForwarder) {
         // Zero-address validation
         require(_trustedForwarder != address(0), "Forwarder cannot be zero address");
@@ -106,6 +112,7 @@ contract AMM is ERC2771Context, ReentrancyGuard {
         resolutionClose = _resolutionClose;
         feeCollector = _feeCollector;
         liquidityParameter = _liquidityParameter;
+        resolver = _resolver;
 
         // Initialize LMSR pricing state with amplified shares
         // Amplifier = b / totalSeed so initial price reflects the seed split
@@ -313,10 +320,30 @@ contract AMM is ERC2771Context, ReentrancyGuard {
     }
 
     /**
+     * @notice Resolve the market directly as an oracle (no voting needed)
+     * @param _outcome True for YES, false for NO
+     * @param _proofHash Hash of the proof data stored off-chain
+     */
+    function resolveAsOracle(bool _outcome, bytes32 _proofHash) public {
+        require(resolver != address(0), "Not an oracle market");
+        require(msg.sender == resolver, "Only resolver can resolve");
+        require(!resolved, "Already resolved");
+        require(block.timestamp >= effectiveTo, "Trading not ended");
+
+        resolved = true;
+        outcome = _outcome;
+        proofHash = _proofHash;
+        resolvedPoolBalance = totalDeposited;
+
+        emit MarketResolvedByOracle(_outcome, _proofHash, resolver);
+    }
+
+    /**
      * @notice Resolve the market based on oracle votes
      * @dev Can be called by anyone after resolution period ends
      */
     function resolve() public {
+        require(resolver == address(0), "Use resolveAsOracle for oracle markets");
         require(block.timestamp >= resolutionClose, "Resolution period not ended");
         require(!resolved, "Already resolved");
 
@@ -353,7 +380,11 @@ contract AMM is ERC2771Context, ReentrancyGuard {
      */
     function getOutcome() public view returns (bool yesWins, bool isResolved) {
         if (!resolved) {
-            // Check if we can determine outcome from oracle
+            // Oracle markets can only be resolved via resolveAsOracle
+            if (resolver != address(0)) {
+                return (false, false);
+            }
+            // Voting markets: check if we can determine outcome from oracle
             if (block.timestamp >= resolutionClose) {
                 uint256 yesVotes = oracle.yesVotesTotal(address(this));
                 uint256 noVotes = oracle.noVotesTotal(address(this));
@@ -372,8 +403,6 @@ contract AMM is ERC2771Context, ReentrancyGuard {
      * @return Claimable amount in USDC (6 decimals)
      */
     function calculateClaim(address user) public view returns (uint256) {
-        require(block.timestamp >= resolutionClose, "Resolution not yet closed");
-
         if (hasClaimed[user]) {
             return 0;
         }
@@ -384,28 +413,39 @@ contract AMM is ERC2771Context, ReentrancyGuard {
             return 0;
         }
 
+        // Oracle markets: use stored outcome directly (no oracle vote lookup)
+        if (resolver != address(0)) {
+            require(resolved, "Oracle market not yet resolved");
+            return _calculateWinnerClaim(user, outcome, totalPoolBalance);
+        }
+
+        // Voting markets: require resolution period closed
+        require(block.timestamp >= resolutionClose, "Resolution not yet closed");
+
         // Get outcome from oracle
         uint256 yesVotes = oracle.yesVotesTotal(address(this));
         uint256 noVotes = oracle.noVotesTotal(address(this));
 
         // No resolution votes - refund proportionally
         if (yesVotes == 0 && noVotes == 0) {
-            // Calculate user's proportional share of deposits
             uint256 userYesShare = totalYes > 0 ? (yesBalances[user] * totalPoolBalance) / totalYes : 0;
             uint256 userNoShare = totalNo > 0 ? (noBalances[user] * totalPoolBalance) / totalNo : 0;
-            return (userYesShare + userNoShare) / 2; // Average refund
+            return (userYesShare + userNoShare) / 2;
         }
 
         // Handle tie: refund proportionally
         if (isTie || (yesVotes == noVotes && yesVotes > 0)) {
             uint256 userYesShare = totalYes > 0 ? (yesBalances[user] * totalPoolBalance) / totalYes : 0;
             uint256 userNoShare = totalNo > 0 ? (noBalances[user] * totalPoolBalance) / totalNo : 0;
-            return (userYesShare + userNoShare) / 2; // Average refund
+            return (userYesShare + userNoShare) / 2;
         }
 
-        // Determine winner
+        // Determine winner from votes
         bool yesWins = yesVotes > noVotes;
+        return _calculateWinnerClaim(user, yesWins, totalPoolBalance);
+    }
 
+    function _calculateWinnerClaim(address user, bool yesWins, uint256 totalPoolBalance) internal view returns (uint256) {
         uint256 userShares;
         uint256 totalWinningShares;
 
@@ -421,7 +461,6 @@ contract AMM is ERC2771Context, ReentrancyGuard {
             return 0;
         }
 
-        // Distribute the entire pool proportionally based on shares
         return (userShares * totalPoolBalance) / totalWinningShares;
     }
 
@@ -430,12 +469,17 @@ contract AMM is ERC2771Context, ReentrancyGuard {
      * @dev Automatically resolves market if not already resolved
      */
     function claim() public nonReentrant {
-        require(block.timestamp >= resolutionClose, "Resolution not yet closed");
         require(!hasClaimed[_msgSender()], "Already claimed");
 
-        // Ensure market is resolved
-        if (!resolved) {
-            resolve();
+        if (resolver != address(0)) {
+            // Oracle market: must be resolved via resolveAsOracle
+            require(resolved, "Oracle market not yet resolved");
+        } else {
+            // Voting market: must wait for resolution period
+            require(block.timestamp >= resolutionClose, "Resolution not yet closed");
+            if (!resolved) {
+                resolve();
+            }
         }
 
         uint256 claimable = calculateClaim(_msgSender());

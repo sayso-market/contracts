@@ -84,6 +84,7 @@ describe("LMSR Precision", async function () {
       `Test ${yesUsdc}/${noUsdc}`,
       now, now + 3600, now + 7200, now + 10800,
       USDC(yesUsdc), USDC(noUsdc),
+      "0x0000000000000000000000000000000000000000" as `0x${string}`,
     ], { account: alice.account });
     const markets = await factory.read.getAllMarkets();
     return viem.getContractAt("AMM", markets[markets.length - 1]);

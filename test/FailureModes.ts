@@ -44,7 +44,7 @@ describe("Failure Modes & Error Recovery", async function () {
     await usdc.write.mint([deployer.account.address, USDC(100)]);
     await usdc.write.approve([factory.address, USDC(100)], { account: deployer.account });
     await factory.write.createMarket(
-      ["Test Market", now, now + 200, now + 300, now + 500, USDC(50), USDC(50)],
+      ["Test Market", now, now + 200, now + 300, now + 500, USDC(50), USDC(50), "0x0000000000000000000000000000000000000000" as `0x${string}`],
       { account: deployer.account }
     );
 

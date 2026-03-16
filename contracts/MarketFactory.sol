@@ -57,7 +57,8 @@ contract MarketFactory is Ownable {
         uint256 resolutionOpen,
         uint256 resolutionClose,
         uint256 initialYesTokens,
-        uint256 initialNoTokens
+        uint256 initialNoTokens,
+        address _resolver
     ) public returns (address) {
         uint256 totalSeed = initialYesTokens + initialNoTokens;
 
@@ -92,7 +93,8 @@ contract MarketFactory is Ownable {
             initialNoTokens,
             feeCollector,
             liquidityParameter,
-            msg.sender // Seed provider receives initial shares
+            msg.sender, // Seed provider receives initial shares
+            _resolver
         );
 
         address marketAddress = address(market);

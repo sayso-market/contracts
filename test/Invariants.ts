@@ -73,6 +73,7 @@ describe("Critical Invariants", async function () {
       BigInt(now + 500),
       seedYes,
       seedNo,
+      "0x0000000000000000000000000000000000000000" as `0x${string}`,
     ]);
 
     const marketAddress = (await factory.read.getAllMarkets())[0];

@@ -99,6 +99,7 @@ describe("SaySo Walkthrough", async function () {
       BigInt(resolutionClose),
       USDC(5), // initialYesTokens (5 USDC)
       USDC(5), // initialNoTokens (5 USDC)
+      "0x0000000000000000000000000000000000000000" as `0x${string}`, // voting mode
     ]);
 
     const marketAddress = (await factory.read.getAllMarkets())[0];

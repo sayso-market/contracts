@@ -65,6 +65,7 @@ describe("Multi-User Complex Scenarios", async function () {
           now + 500,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -171,6 +172,7 @@ describe("Multi-User Complex Scenarios", async function () {
             now + 800,
             USDC(50),
             USDC(50),
+            "0x0000000000000000000000000000000000000000" as `0x${string}`,
           ],
           { account: deployer.account }
         );
@@ -249,6 +251,7 @@ describe("Multi-User Complex Scenarios", async function () {
           now + 200,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -265,6 +268,7 @@ describe("Multi-User Complex Scenarios", async function () {
           now + 800,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -379,6 +383,7 @@ describe("Multi-User Complex Scenarios", async function () {
             now + 500,
             yesAmount,
             noAmount,
+            "0x0000000000000000000000000000000000000000" as `0x${string}`,
           ],
           { account: deployer.account }
         );
@@ -475,6 +480,7 @@ describe("Multi-User Complex Scenarios", async function () {
           now + 600,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
@@ -588,6 +594,7 @@ describe("Multi-User Complex Scenarios", async function () {
           now + 600,
           USDC(50),
           USDC(50),
+          "0x0000000000000000000000000000000000000000" as `0x${string}`,
         ],
         { account: deployer.account }
       );
