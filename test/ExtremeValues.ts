@@ -49,7 +49,7 @@ describe("Extreme Values & Boundaries", async function () {
 
       const now = await getNow();
 
-      // Create market with extreme imbalance (1000 YES : 1 NO)
+      // Create market with extreme YES-heavy imbalance (~99.9% target)
       await usdc.write.mint([deployer.account.address, USDC(1001)]);
       await usdc.write.approve([factory.address, USDC(1001)], { account: deployer.account });
 
@@ -60,9 +60,10 @@ describe("Extreme Values & Boundaries", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(1000), // YES seed
-          USDC(1),    // NO seed (minimum to avoid zero)
+          USDC(1001), // total seed
+          9990n,      // 99.9% YES target
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -81,10 +82,9 @@ describe("Extreme Values & Boundaries", async function () {
       console.log(`  qNo: ${Number(qNo) / 1e18}`);
       console.log(`  Imbalance ratio: ${imbalanceRatio.toFixed(2)}:1`);
 
-      // LMSR dampens extreme ratios via liquidity parameter b
-      // With b proportional to total seed, even 1000:1 won't reach 90%
+      // Price should match target (~99.9%)
       assert.ok(price < 1e18, "Price should be < 100%");
-      assert.ok(price > 5e17, "Price should be > 50% with YES-heavy imbalance");
+      assert.ok(price > 99e16, "Price should be > 99% with 99.9% target");
 
       // Try trading on the cheap side (NO)
       await usdc.write.mint([alice.account.address, USDC(100)]);
@@ -98,7 +98,7 @@ describe("Extreme Values & Boundaries", async function () {
       console.log(`  Price after NO buy: ${Number(priceAfterNo) / 1e16}%`);
       console.log(`  Alice NO shares: ${Number(aliceNoShares) / 1e18}`);
 
-      // Buying NO should decrease price significantly (buying the cheap side)
+      // Buying NO should decrease price
       assert.ok(priceAfterNo < price, "NO purchase should decrease YES price");
       assert.ok(aliceNoShares > 0n, "Should receive NO shares");
     });
@@ -119,9 +119,10 @@ describe("Extreme Values & Boundaries", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(1),    // YES seed
-          USDC(1000), // NO seed
+          USDC(1001),
+          10n, // ~0.1% YES
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -168,9 +169,10 @@ describe("Extreme Values & Boundaries", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -222,9 +224,10 @@ describe("Extreme Values & Boundaries", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(5),
-          USDC(5),
+          USDC(10),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -272,9 +275,10 @@ describe("Extreme Values & Boundaries", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(500),
-          USDC(500),
+          USDC(1000),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -320,9 +324,10 @@ describe("Extreme Values & Boundaries", async function () {
           effectiveFrom + 200,
           effectiveFrom + 300,
           effectiveFrom + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -367,9 +372,10 @@ describe("Extreme Values & Boundaries", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -407,9 +413,10 @@ describe("Extreme Values & Boundaries", async function () {
           effectiveTo,
           effectiveTo + 100,
           effectiveTo + 200,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -454,9 +461,10 @@ describe("Extreme Values & Boundaries", async function () {
           now + 5,
           resolutionOpen,
           resolutionOpen + 100,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -503,9 +511,10 @@ describe("Extreme Values & Boundaries", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(2500),
-          USDC(2500),
+          USDC(5000),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );

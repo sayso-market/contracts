@@ -60,9 +60,10 @@ describe("ERC-2771 Meta-Transactions", async function () {
         effectiveTo,
         resolutionOpen,
         resolutionClose,
-        USDC(50),
-        USDC(50),
+        USDC(100),
+        5000n,
         "0x0000000000000000000000000000000000000000" as `0x${string}`,
+        deployer.account.address,
       ],
       { account: deployer.account }
     );
@@ -109,9 +110,10 @@ describe("ERC-2771 Meta-Transactions", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          user.account.address,
         ],
         { account: user.account }
       );

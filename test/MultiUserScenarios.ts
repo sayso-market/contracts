@@ -63,9 +63,10 @@ describe("Multi-User Complex Scenarios", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -170,9 +171,10 @@ describe("Multi-User Complex Scenarios", async function () {
             now + 500,
             now + 600,
             now + 800,
-            USDC(50),
-            USDC(50),
+            USDC(100),
+            5000n,
             "0x0000000000000000000000000000000000000000" as `0x${string}`,
+            deployer.account.address,
           ],
           { account: deployer.account }
         );
@@ -249,9 +251,10 @@ describe("Multi-User Complex Scenarios", async function () {
           now + 100,
           now + 150,
           now + 200,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -266,9 +269,10 @@ describe("Multi-User Complex Scenarios", async function () {
           now + 500,
           now + 600,
           now + 800,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -367,10 +371,9 @@ describe("Multi-User Complex Scenarios", async function () {
 
       const marketContracts = [];
 
-      // Create 5 markets with different seeds
+      // Create 5 markets with different target prices
       for (let i = 0; i < 5; i++) {
-        const yesAmount = USDC(30 + i * 10); // 30, 40, 50, 60, 70
-        const noAmount = USDC(70 - i * 10); // 70, 60, 50, 40, 30
+        const targetPriceBps = BigInt((30 + i * 10) * 100); // 3000, 4000, 5000, 6000, 7000
 
         await usdc.write.mint([deployer.account.address, USDC(100)]);
         await usdc.write.approve([factory.address, USDC(100)], { account: deployer.account });
@@ -381,9 +384,10 @@ describe("Multi-User Complex Scenarios", async function () {
             now + 200,
             now + 300,
             now + 500,
-            yesAmount,
-            noAmount,
+            USDC(100),
+            targetPriceBps,
             "0x0000000000000000000000000000000000000000" as `0x${string}`,
+            deployer.account.address,
           ],
           { account: deployer.account }
         );
@@ -478,9 +482,10 @@ describe("Multi-User Complex Scenarios", async function () {
           now + 300,
           now + 400,
           now + 600,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -592,9 +597,10 @@ describe("Multi-User Complex Scenarios", async function () {
           now + 300,
           now + 400,
           now + 600,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );

@@ -68,9 +68,10 @@ describe("LMSR Pricing Correctness", async function () {
           now + 200,  // effectiveTo: now + 200
           now + 300,  // resolutionOpen: now + 300
           now + 400,  // resolutionClose: now + 400
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          alice.account.address,
         ],
         { account: alice.account }
       );
@@ -163,9 +164,10 @@ describe("LMSR Pricing Correctness", async function () {
           now + 200,  // effectiveTo: now + 200
           now + 300,  // resolutionOpen: now + 300
           now + 400,  // resolutionClose: now + 400
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          alice.account.address,
         ],
         { account: alice.account }
       );

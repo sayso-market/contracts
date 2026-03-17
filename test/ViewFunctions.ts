@@ -68,9 +68,10 @@ describe("View Functions and Getters", async function () {
           now + 200, // Ends in 200s
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -85,9 +86,10 @@ describe("View Functions and Getters", async function () {
           now + 1200,
           now + 1300,
           now + 1500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -102,9 +104,10 @@ describe("View Functions and Getters", async function () {
           now + 150,
           now + 250,
           now + 450,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -131,9 +134,10 @@ describe("View Functions and Getters", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -148,9 +152,10 @@ describe("View Functions and Getters", async function () {
           now + 1200,
           now + 1300,
           now + 1500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -165,9 +170,10 @@ describe("View Functions and Getters", async function () {
           now - 100, // Trading ended
           now - 50, // Voting open
           now + 100, // Voting closes soon
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -221,9 +227,10 @@ describe("View Functions and Getters", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -252,9 +259,10 @@ describe("View Functions and Getters", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -308,9 +316,10 @@ describe("View Functions and Getters", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -353,9 +362,10 @@ describe("View Functions and Getters", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -384,9 +394,10 @@ describe("View Functions and Getters", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -428,9 +439,10 @@ describe("View Functions and Getters", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -459,9 +471,10 @@ describe("View Functions and Getters", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -515,9 +528,10 @@ describe("View Functions and Getters", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(60),
-          USDC(40),
+          USDC(100),
+          6000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -567,9 +581,10 @@ describe("View Functions and Getters", async function () {
           effectiveTo,
           resolutionOpen,
           resolutionClose,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -603,9 +618,10 @@ describe("View Functions and Getters", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -649,9 +665,10 @@ describe("View Functions and Getters", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -680,9 +697,10 @@ describe("View Functions and Getters", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -717,9 +735,10 @@ describe("View Functions and Getters", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );

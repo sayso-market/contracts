@@ -42,10 +42,9 @@ describe("Market Seeding", async function () {
     await usdc.write.mint([creator.account.address, USDC(10000)]);
     assert.equal(await usdc.read.balanceOf([creator.account.address]), USDC(10000));
 
-    // Calculate seed amounts: 10 USDC total, 75% YES (7.5 USDC), 25% NO (2.5 USDC)
+    // Calculate seed amounts: 10 USDC total, 75% YES target price
     const totalSeed = USDC(10);
-    const yesAmount = USDC(7.5);
-    const noAmount = USDC(2.5);
+    const targetPriceBps = 7500n; // 75%
 
     // Creator approves factory to spend seed amount
     await usdc.write.approve([factory.address, totalSeed], { account: creator.account });
@@ -62,9 +61,10 @@ describe("Market Seeding", async function () {
       BigInt(effectiveTo),
       BigInt(resolutionOpen),
       BigInt(resolutionClose),
-      yesAmount,
-      noAmount,
+      totalSeed,
+      targetPriceBps,
       "0x0000000000000000000000000000000000000000" as `0x${string}`,
+      creator.account.address,
     ], { account: creator.account });
 
     const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -78,28 +78,21 @@ describe("Market Seeding", async function () {
     const poolBalance = await usdc.read.balanceOf([market.address]);
     assert.equal(poolBalance, totalSeed); // Full 10 USDC
 
-    // Verify price reflects YES-heavy seeding (LMSR gives ~59% for 75/25 split)
+    // Verify price reflects YES-heavy seeding (~75% target)
     const price = await market.read.price();
     const pricePercent = (Number(price) / 1e18) * 100;
-    assert(pricePercent > 50 && pricePercent < 70, `Price ${pricePercent}% should be > 50% (YES-heavy)`);
+    assert(pricePercent > 70 && pricePercent < 80, `Price ${pricePercent}% should be near 75% target`);
 
-    // Verify qYes and qNo are amplified (virtual liquidity for LMSR pricing)
-    const info = await market.read.getMarketInfo();
-    const yesAmount18 = yesAmount * 1000000000000n; // Scale 6 decimals to 18
-    const noAmount18 = noAmount * 1000000000000n;
-    const amplifier = 15n; // b/totalSeed = 15x
-    assert.equal(info[4], yesAmount18 * amplifier); // qYes amplified
-    assert.equal(info[5], noAmount18 * amplifier); // qNo amplified
-
-    // Verify creator received actual shares (not amplified)
+    // Verify creator received seed shares: yesShares = totalSeed * 7500 / 10000
     const creatorYesShares = await market.read.yesBalances([creator.account.address]);
     const creatorNoShares = await market.read.noBalances([creator.account.address]);
-    assert.equal(creatorYesShares, yesAmount18); // Actual shares
-    assert.equal(creatorNoShares, noAmount18); // Actual shares
+    const expectedYesShares = totalSeed * 1000000000000n * 7500n / 10000n;
+    const expectedNoShares = totalSeed * 1000000000000n - expectedYesShares;
+    assert.equal(creatorYesShares, expectedYesShares);
+    assert.equal(creatorNoShares, expectedNoShares);
 
-    console.log(`\n✓ Market created with ${formatUnits(totalSeed, 6)} USDC seed`);
-    console.log(`  YES: ${formatUnits(yesAmount, 6)} USDC (${pricePercent}%)`);
-    console.log(`  NO:  ${formatUnits(noAmount, 6)} USDC (${100 - pricePercent}%)`);
+    console.log(`\n Market created with ${formatUnits(totalSeed, 6)} USDC seed`);
+    console.log(`  Target price: 75%, Actual: ${pricePercent.toFixed(2)}%`);
     console.log(`  Pool balance: ${formatUnits(poolBalance, 6)} USDC (no fees charged)`);
   });
 
@@ -135,16 +128,17 @@ describe("Market Seeding", async function () {
     const resolutionOpen = now + 300;
     const resolutionClose = now + 500;
 
-    // Create market with balanced seed (minimum 10 USDC: 5 YES + 5 NO)
+    // Create market with balanced seed (minimum 10 USDC, 50% target)
     await factory.write.createMarket([
       "Will SOL flip ETH?",
       BigInt(effectiveFrom),
       BigInt(effectiveTo),
       BigInt(resolutionOpen),
       BigInt(resolutionClose),
-      USDC(5), // 5 USDC YES
-      USDC(5), // 5 USDC NO
+      USDC(10), // 10 USDC total seed
+      5000n,     // 50% target price
       "0x0000000000000000000000000000000000000000" as `0x${string}`,
+      deployer.account.address,
     ]);
 
     const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -183,10 +177,9 @@ describe("Market Seeding", async function () {
     // Fund the creator with USDC
     await usdc.write.mint([creator.account.address, USDC(10000)]);
 
-    // Calculate seed amounts: 10 USDC total, 25% YES (2.5 USDC), 75% NO (7.5 USDC)
+    // 10 USDC total, 25% YES target
     const totalSeed = USDC(10);
-    const yesAmount = USDC(2.5);
-    const noAmount = USDC(7.5);
+    const targetPriceBps = 2500n; // 25%
 
     // Creator approves factory to spend seed amount
     await usdc.write.approve([factory.address, totalSeed], { account: creator.account });
@@ -203,9 +196,10 @@ describe("Market Seeding", async function () {
       BigInt(effectiveTo),
       BigInt(resolutionOpen),
       BigInt(resolutionClose),
-      yesAmount,
-      noAmount,
+      totalSeed,
+      targetPriceBps,
       "0x0000000000000000000000000000000000000000" as `0x${string}`,
+      creator.account.address,
     ], { account: creator.account });
 
     const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -219,28 +213,21 @@ describe("Market Seeding", async function () {
     const poolBalance = await usdc.read.balanceOf([market.address]);
     assert.equal(poolBalance, totalSeed); // Full 10 USDC
 
-    // Verify price reflects NO-heavy seeding (LMSR gives ~41% for 25/75 split)
+    // Verify price reflects 25% target
     const price = await market.read.price();
     const pricePercent = (Number(price) / 1e18) * 100;
-    assert(pricePercent > 30 && pricePercent < 50, `Price ${pricePercent}% should be < 50% (NO-heavy)`);
+    assert(pricePercent > 20 && pricePercent < 30, `Price ${pricePercent}% should be near 25% target`);
 
-    // Verify qYes and qNo are amplified (virtual liquidity for LMSR pricing)
-    const info = await market.read.getMarketInfo();
-    const yesAmount18 = yesAmount * 1000000000000n; // Scale 6 decimals to 18
-    const noAmount18 = noAmount * 1000000000000n;
-    const amplifier = 15n; // b/totalSeed = 15x
-    assert.equal(info[4], yesAmount18 * amplifier); // qYes amplified
-    assert.equal(info[5], noAmount18 * amplifier); // qNo amplified
-
-    // Verify creator received actual shares (not amplified)
+    // Verify creator received seed shares proportional to target price
     const creatorYesShares = await market.read.yesBalances([creator.account.address]);
     const creatorNoShares = await market.read.noBalances([creator.account.address]);
-    assert.equal(creatorYesShares, yesAmount18); // Actual shares
-    assert.equal(creatorNoShares, noAmount18); // Actual shares
+    const expectedYesShares = totalSeed * 1000000000000n * 2500n / 10000n;
+    const expectedNoShares = totalSeed * 1000000000000n - expectedYesShares;
+    assert.equal(creatorYesShares, expectedYesShares);
+    assert.equal(creatorNoShares, expectedNoShares);
 
-    console.log(`\n✓ Market created with ${formatUnits(totalSeed, 6)} USDC seed`);
-    console.log(`  YES: ${formatUnits(yesAmount, 6)} USDC (${pricePercent}%)`);
-    console.log(`  NO:  ${formatUnits(noAmount, 6)} USDC (${100 - pricePercent}%)`);
+    console.log(`\n Market created with ${formatUnits(totalSeed, 6)} USDC seed`);
+    console.log(`  Target price: 25%, Actual: ${pricePercent.toFixed(2)}%`);
     console.log(`  Pool balance: ${formatUnits(poolBalance, 6)} USDC (no fees charged)`);
   });
 
@@ -277,25 +264,26 @@ describe("Market Seeding", async function () {
     const resolutionOpen = now + 300;
     const resolutionClose = now + 500;
 
-    // Create market with 100% YES
+    // Create market with 99% YES target
     await factory.write.createMarket([
       "Will DOGE hit $10?",
       BigInt(effectiveFrom),
       BigInt(effectiveTo),
       BigInt(resolutionOpen),
       BigInt(resolutionClose),
-      USDC(100), // 100% YES
-      0n,        // 0% NO
+      USDC(100), // 100 USDC total
+      9900n,     // 99% YES target
       "0x0000000000000000000000000000000000000000" as `0x${string}`,
+      creator.account.address,
     ], { account: creator.account });
 
     const marketAddress = (await factory.read.getAllMarkets())[0];
     const market = await viem.getContractAt("AMM", marketAddress);
 
-    // Verify price is YES-biased (amplified q gives e^1/(e^1+e^0) ≈ 73.1% for 100/0)
+    // Verify price is near 99% target
     const price = await market.read.price();
     const pricePercent = (Number(price) / 1e18) * 100;
-    assert(pricePercent > 65 && pricePercent < 80, `Price ${pricePercent}% should be 65-80% (100% YES seed with amplification)`);
+    assert(pricePercent > 95 && pricePercent < 100, `Price ${pricePercent}% should be near 99% target`);
 
     // Verify pool has full seed
     const poolBalance = await usdc.read.balanceOf([market.address]);

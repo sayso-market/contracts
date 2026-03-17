@@ -56,14 +56,13 @@ describe("Critical Invariants", async function () {
   async function createMarket(
     factory: any,
     usdc: any,
-    seedYes: bigint,
-    seedNo: bigint
+    totalSeedAmount: bigint,
+    targetPriceBps: bigint = 5000n
   ) {
     const now = await getNow();
-    const totalSeed = seedYes + seedNo;
 
-    await usdc.write.mint([deployer.account.address, totalSeed]);
-    await usdc.write.approve([factory.address, totalSeed]);
+    await usdc.write.mint([deployer.account.address, totalSeedAmount]);
+    await usdc.write.approve([factory.address, totalSeedAmount]);
 
     await factory.write.createMarket([
       "Test Market",
@@ -71,9 +70,10 @@ describe("Critical Invariants", async function () {
       BigInt(now + 200),
       BigInt(now + 300),
       BigInt(now + 500),
-      seedYes,
-      seedNo,
+      totalSeedAmount,
+      targetPriceBps,
       "0x0000000000000000000000000000000000000000" as `0x${string}`,
+      deployer.account.address,
     ]);
 
     const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -83,7 +83,7 @@ describe("Critical Invariants", async function () {
   describe("Conservation Laws", function () {
     it("pool balance + fees = totalDeposited + seed (after trades)", async function () {
       const { usdc, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
       const seedAmount = USDC(10);
 
       // Fund users
@@ -127,7 +127,7 @@ describe("Critical Invariants", async function () {
 
     it("share accounting: totalYes/totalNo = sum of user balances", async function () {
       const { usdc, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
 
       await usdc.write.mint([alice.account.address, USDC(1000)]);
       await usdc.write.mint([bob.account.address, USDC(1000)]);
@@ -166,7 +166,7 @@ describe("Critical Invariants", async function () {
 
     it("after all claims, pool is fully drained or only unclaimed seed remains", async function () {
       const { usdc, sayso, oracle, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
       const marketAddress = await market.address;
 
       await usdc.write.mint([alice.account.address, USDC(1000)]);
@@ -209,7 +209,7 @@ describe("Critical Invariants", async function () {
 
     it("LMSR: qYes + qNo represents total outstanding shares", async function () {
       const { usdc, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
 
       await usdc.write.mint([alice.account.address, USDC(1000)]);
       await advanceTime(2);
@@ -239,7 +239,7 @@ describe("Critical Invariants", async function () {
   describe("Internal Accounting", function () {
     it("donation attack: direct USDC transfer doesn't affect calculateClaim", async function () {
       const { usdc, sayso, oracle, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
       const marketAddress = await market.address;
 
       await usdc.write.mint([alice.account.address, USDC(2000)]);
@@ -298,7 +298,7 @@ describe("Critical Invariants", async function () {
 
     it("donation attack: resolve uses totalDeposited, not balanceOf", async function () {
       const { usdc, sayso, oracle, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
       const marketAddress = await market.address;
 
       await usdc.write.mint([alice.account.address, USDC(2000)]);
@@ -351,7 +351,7 @@ describe("Critical Invariants", async function () {
 
     it("totalDeposited tracks buy/sell correctly", async function () {
       const { usdc, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
       const seedAmount = USDC(10);
 
       await usdc.write.mint([alice.account.address, USDC(1000)]);
@@ -389,7 +389,7 @@ describe("Critical Invariants", async function () {
     it("price remains in [0, 100%] during extreme trades", async function () {
       const { usdc, factory } = await deployInfrastructure();
       // Use larger seed to allow bigger trades without overflow
-      const market = await createMarket(factory, usdc, USDC(50), USDC(50));
+      const market = await createMarket(factory, usdc, USDC(100));
 
       await usdc.write.mint([alice.account.address, USDC(10000)]);
       await advanceTime(2);
@@ -422,7 +422,7 @@ describe("Critical Invariants", async function () {
 
     it("buying YES always increases or maintains price", async function () {
       const { usdc, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
 
       await usdc.write.mint([alice.account.address, USDC(10000)]);
       await advanceTime(2);
@@ -445,7 +445,7 @@ describe("Critical Invariants", async function () {
 
     it("selling YES always decreases or maintains price", async function () {
       const { usdc, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
 
       await usdc.write.mint([alice.account.address, USDC(10000)]);
       await advanceTime(2);

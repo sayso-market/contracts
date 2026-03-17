@@ -61,9 +61,10 @@ describe("Admin Function Mutations", async function () {
         effectiveTo,
         resolutionOpen,
         resolutionClose,
-        USDC(50),
-        USDC(50),
+        USDC(100),
+        5000n,
         "0x0000000000000000000000000000000000000000" as `0x${string}`,
+        deployer.account.address,
       ],
       { account: deployer.account }
     );
@@ -127,9 +128,10 @@ describe("Admin Function Mutations", async function () {
           now + 1200,
           now + 1300,
           now + 1500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -263,9 +265,10 @@ describe("Admin Function Mutations", async function () {
           now + 1200,
           now + 1300,
           now + 1500,
-          USDC(50),
-          USDC(50),
+          USDC(100),
+          5000n,
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          deployer.account.address,
         ],
         { account: deployer.account }
       );
@@ -529,6 +532,219 @@ describe("Admin Function Mutations", async function () {
       console.log(`  Transaction emitted ${logs.length} logs`);
 
       assert.ok(logs.length > 0, "Should emit at least one event");
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════
+  // AMM Pause / Unpause / Refund
+  // ═══════════════════════════════════════════════════════════════════
+
+  describe("AMM Pause", function () {
+    it("admin can pause and block trading", async function () {
+      const { usdc, market } = await deployAll();
+
+      // Admin (deployer) pauses market
+      await market.write.pause([], { account: deployer.account });
+      assert.equal(await market.read.paused(), true);
+
+      // Alice tries to buy — should revert
+      await usdc.write.approve([market.address, USDC(10)], { account: alice.account });
+      await assert.rejects(
+        market.write.buyYes([USDC(10)], { account: alice.account }),
+        (err: any) => /Market is paused/.test(String(err)),
+        "Should revert with Market is paused"
+      );
+
+      // buyNo also blocked
+      await assert.rejects(
+        market.write.buyNo([USDC(10)], { account: alice.account }),
+        (err: any) => /Market is paused/.test(String(err)),
+        "Should revert with Market is paused"
+      );
+    });
+
+    it("admin can unpause and resume trading", async function () {
+      const { usdc, market } = await deployAll();
+
+      await market.write.pause([], { account: deployer.account });
+      assert.equal(await market.read.paused(), true);
+
+      await market.write.unpause([], { account: deployer.account });
+      assert.equal(await market.read.paused(), false);
+
+      // Trading works again
+      await usdc.write.approve([market.address, USDC(10)], { account: alice.account });
+      await market.write.buyYes([USDC(10)], { account: alice.account });
+      const shares = await market.read.yesBalances([alice.account.address]);
+      assert.ok(shares > 0n, "Should receive shares after unpause");
+    });
+
+    it("non-admin cannot pause", async function () {
+      const { market } = await deployAll();
+
+      await assert.rejects(
+        market.write.pause([], { account: attacker.account }),
+        (err: any) => err instanceof Error,
+        "Should revert for non-admin"
+      );
+      // Verify market is still unpaused
+      assert.equal(await market.read.paused(), false);
+    });
+
+    it("non-admin cannot unpause", async function () {
+      const { market } = await deployAll();
+
+      await market.write.pause([], { account: deployer.account });
+
+      await assert.rejects(
+        market.write.unpause([], { account: attacker.account }),
+        (err: any) => err instanceof Error,
+        "Should revert for non-admin"
+      );
+      // Verify market is still paused
+      assert.equal(await market.read.paused(), true);
+    });
+
+    it("emits MarketPaused and MarketUnpaused events", async function () {
+      const { market } = await deployAll();
+
+      const pauseHash = await market.write.pause([], { account: deployer.account });
+      const pauseReceipt = await publicClient.waitForTransactionReceipt({ hash: pauseHash });
+      assert.ok(pauseReceipt.logs.length > 0, "Should emit MarketPaused event");
+
+      const unpauseHash = await market.write.unpause([], { account: deployer.account });
+      const unpauseReceipt = await publicClient.waitForTransactionReceipt({ hash: unpauseHash });
+      assert.ok(unpauseReceipt.logs.length > 0, "Should emit MarketUnpaused event");
+    });
+
+    it("sell is also blocked when paused", async function () {
+      const { usdc, market } = await deployAll();
+
+      // Alice buys first
+      await usdc.write.approve([market.address, USDC(10)], { account: alice.account });
+      await market.write.buyYes([USDC(10)], { account: alice.account });
+
+      // Mine blocks to pass flash loan protection
+      for (let i = 0; i < 10; i++) {
+        await provider.send("evm_mine");
+      }
+
+      // Admin pauses
+      await market.write.pause([], { account: deployer.account });
+
+      // Alice tries to sell — blocked by pause
+      const shares = await market.read.yesBalances([alice.account.address]);
+      await assert.rejects(
+        market.write.sellYes([shares], { account: alice.account }),
+        (err: any) => /Market is paused/.test(String(err)),
+        "Should revert with Market is paused"
+      );
+    });
+  });
+
+  describe("AMM Refund", function () {
+    it("admin can refund and users get proportional payouts", async function () {
+      const { usdc, market } = await deployAll();
+
+      // Alice and Bob buy shares
+      await usdc.write.approve([market.address, USDC(100)], { account: alice.account });
+      await market.write.buyYes([USDC(100)], { account: alice.account });
+
+      await usdc.write.approve([market.address, USDC(50)], { account: bob.account });
+      await market.write.buyNo([USDC(50)], { account: bob.account });
+
+      // Admin refunds
+      await market.write.refund([], { account: deployer.account });
+
+      assert.equal(await market.read.refunded(), true);
+      assert.equal(await market.read.resolved(), true);
+
+      // Both users can claim proportional refunds
+      const aliceClaim = await market.read.calculateClaim([alice.account.address]);
+      const bobClaim = await market.read.calculateClaim([bob.account.address]);
+
+      assert.ok(aliceClaim > 0n, "Alice should have claimable amount");
+      assert.ok(bobClaim > 0n, "Bob should have claimable amount");
+
+      // Alice claims
+      const aliceBefore = await usdc.read.balanceOf([alice.account.address]);
+      await market.write.claim([], { account: alice.account });
+      const aliceAfter = await usdc.read.balanceOf([alice.account.address]);
+      assert.ok(aliceAfter > aliceBefore, "Alice should receive refund");
+    });
+
+    it("non-admin cannot refund", async function () {
+      const { market } = await deployAll();
+
+      await assert.rejects(
+        market.write.refund([], { account: attacker.account }),
+        (err: any) => err instanceof Error,
+        "Should revert for non-admin"
+      );
+      // Verify market is not refunded
+      assert.equal(await market.read.refunded(), false);
+    });
+
+    it("cannot refund after resolution", async function () {
+      const { market } = await deployAll();
+
+      // Advance past resolution period
+      await advanceTime(600);
+
+      // Resolve the market first
+      await market.write.resolve([], { account: deployer.account });
+
+      // Try to refund — should fail
+      await assert.rejects(
+        market.write.refund([], { account: deployer.account }),
+        (err: any) => /Already resolved/.test(String(err)),
+        "Should revert with Already resolved"
+      );
+    });
+
+    it("cannot refund twice", async function () {
+      const { market } = await deployAll();
+
+      await market.write.refund([], { account: deployer.account });
+
+      // Second refund hits "Already resolved" since refund() sets resolved=true
+      await assert.rejects(
+        market.write.refund([], { account: deployer.account }),
+        (err: any) => /Already resolved/.test(String(err)),
+        "Should revert with Already resolved"
+      );
+    });
+
+    it("emits MarketRefunded event", async function () {
+      const { market } = await deployAll();
+
+      const hash = await market.write.refund([], { account: deployer.account });
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      assert.ok(receipt.logs.length > 0, "Should emit MarketRefunded event");
+    });
+
+    it("refund gives proportional payout based on total shares", async function () {
+      const { usdc, market } = await deployAll();
+
+      // Alice buys YES, Bob buys NO
+      await usdc.write.approve([market.address, USDC(200)], { account: alice.account });
+      await market.write.buyYes([USDC(200)], { account: alice.account });
+
+      await usdc.write.approve([market.address, USDC(100)], { account: bob.account });
+      await market.write.buyNo([USDC(100)], { account: bob.account });
+
+      // Refund
+      await market.write.refund([], { account: deployer.account });
+
+      const aliceClaim = await market.read.calculateClaim([alice.account.address]);
+      const bobClaim = await market.read.calculateClaim([bob.account.address]);
+
+      assert.ok(aliceClaim > 0n, "Alice should get refund");
+      assert.ok(bobClaim > 0n, "Bob should get refund");
+
+      // Seed provider also has shares, so alice+bob claims < totalDeposited
+      const totalDeposited = await market.read.totalDeposited();
+      assert.ok(aliceClaim + bobClaim <= totalDeposited, "Total claims should not exceed deposits");
     });
   });
 });

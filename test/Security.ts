@@ -53,12 +53,11 @@ describe("Security Validations", async function () {
     return { usdc, sayso, oracle, forwarder, factory };
   }
 
-  async function createMarket(factory: any, usdc: any, seedYes: bigint, seedNo: bigint) {
+  async function createMarket(factory: any, usdc: any, totalSeedAmount: bigint, targetPriceBps: bigint = 5000n) {
     const now = await getNow();
-    const totalSeed = seedYes + seedNo;
 
-    await usdc.write.mint([deployer.account.address, totalSeed]);
-    await usdc.write.approve([factory.address, totalSeed]);
+    await usdc.write.mint([deployer.account.address, totalSeedAmount]);
+    await usdc.write.approve([factory.address, totalSeedAmount]);
 
     await factory.write.createMarket([
       "Test Market",
@@ -66,9 +65,10 @@ describe("Security Validations", async function () {
       BigInt(now + 200),
       BigInt(now + 300),
       BigInt(now + 500),
-      seedYes,
-      seedNo,
+      totalSeedAmount,
+      targetPriceBps,
       "0x0000000000000000000000000000000000000000" as `0x${string}`,
+      deployer.account.address,
     ]);
 
     const marketAddress = (await factory.read.getAllMarkets())[0];
@@ -78,7 +78,7 @@ describe("Security Validations", async function () {
   describe("Flash Loan Protection", function () {
     it("basic: cannot sell immediately after purchase", async function () {
       const { usdc, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
 
       await usdc.write.mint([alice.account.address, USDC(1000)]);
       await advanceTime(2);
@@ -104,7 +104,7 @@ describe("Security Validations", async function () {
 
     it("exact boundary: cannot sell at 9 blocks, can sell at 10 blocks", async function () {
       const { usdc, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
 
       await usdc.write.mint([alice.account.address, USDC(1000)]);
       await advanceTime(2);
@@ -145,7 +145,7 @@ describe("Security Validations", async function () {
 
     it("multiple purchases: tracks each purchase block separately", async function () {
       const { usdc, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
 
       await usdc.write.mint([alice.account.address, USDC(1000)]);
       await advanceTime(2);
@@ -188,7 +188,7 @@ describe("Security Validations", async function () {
   describe("Oracle Slashing & Voting", function () {
     it("multiple voters on winning side split rewards proportionally", async function () {
       const { usdc, sayso, oracle, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
       const marketAddress = await market.address;
 
       await usdc.write.mint([alice.account.address, USDC(1000)]);
@@ -256,7 +256,7 @@ describe("Security Validations", async function () {
 
     it("cannot claim twice", async function () {
       const { usdc, sayso, oracle, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
       const marketAddress = await market.address;
 
       await usdc.write.mint([alice.account.address, USDC(1000)]);
@@ -289,7 +289,7 @@ describe("Security Validations", async function () {
 
     it("cannot vote with 0 amount", async function () {
       const { sayso, oracle, factory, usdc } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
       const marketAddress = await market.address;
 
       await sayso.write.mint([charlie.account.address, SAYSO(1000)]);
@@ -370,7 +370,7 @@ describe("Security Validations", async function () {
 
     it("anyone can call resolve after resolutionClose", async function () {
       const { usdc, sayso, oracle, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
       const marketAddress = await market.address;
 
       await sayso.write.mint([charlie.account.address, SAYSO(1000)]);
@@ -391,7 +391,7 @@ describe("Security Validations", async function () {
 
     it("cannot call resolve before resolutionClose", async function () {
       const { usdc, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
 
       await assert.rejects(
         market.write.resolve(),
@@ -402,7 +402,7 @@ describe("Security Validations", async function () {
 
     it("cannot call resolve twice", async function () {
       const { usdc, sayso, oracle, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
       const marketAddress = await market.address;
 
       await sayso.write.mint([charlie.account.address, SAYSO(1000)]);
@@ -429,7 +429,7 @@ describe("Security Validations", async function () {
 
     it("cannot vote before resolutionOpen", async function () {
       const { usdc, sayso, oracle, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
       const marketAddress = await market.address;
 
       await sayso.write.mint([charlie.account.address, SAYSO(1000)]);
@@ -445,7 +445,7 @@ describe("Security Validations", async function () {
 
     it("cannot vote after resolutionClose", async function () {
       const { usdc, sayso, oracle, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
       const marketAddress = await market.address;
 
       await sayso.write.mint([charlie.account.address, SAYSO(1000)]);
@@ -465,7 +465,7 @@ describe("Security Validations", async function () {
 
     it("cannot trade after market closes", async function () {
       const { usdc, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
 
       await usdc.write.mint([alice.account.address, USDC(1000)]);
 
@@ -486,7 +486,7 @@ describe("Security Validations", async function () {
   describe("Reentrancy Protection", function () {
     it("nonReentrant guards prevent reentrancy on buyYes", async function () {
       const { usdc, factory } = await deployInfrastructure();
-      const market = await createMarket(factory, usdc, USDC(5), USDC(5));
+      const market = await createMarket(factory, usdc, USDC(10));
 
       // Note: This is a basic test. Full reentrancy testing would require
       // deploying a malicious ERC20 contract that calls back into AMM

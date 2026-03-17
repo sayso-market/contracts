@@ -66,9 +66,10 @@ describe("Oracle Resolution", async function () {
       BigInt(t.effectiveTo),
       BigInt(t.resolutionOpen),
       BigInt(t.resolutionClose),
-      USDC(5),
-      USDC(5),
+      USDC(10),
+      5000n,
       resolverAddress,
+      deployer.account.address,
     ]);
 
     const markets = await factory.read.getAllMarkets();
@@ -94,9 +95,10 @@ describe("Oracle Resolution", async function () {
       BigInt(effectiveTo),
       BigInt(resolutionOpen),
       BigInt(resolutionClose),
-      USDC(5),
-      USDC(5),
+      USDC(10),
+      5000n,
       ZERO_ADDRESS as `0x${string}`,
+      deployer.account.address,
     ]);
 
     const markets = await factory.read.getAllMarkets();

@@ -140,6 +140,62 @@ library LMSR {
     }
 
     /**
+     * @notice Compute initial qYes/qNo so that priceYes == targetPriceBps / 10000
+     * @dev Uses ln(p/(1-p)) to derive the quantity difference.
+     *      Sets qNo = b (arbitrary reference) and qYes = b + b * ln(p/(1-p)).
+     * @param b Liquidity parameter (18 decimals)
+     * @param targetPriceBps Target YES price in basis points (e.g. 6000 = 60%)
+     * @return qYes Initial YES quantity (18 decimals)
+     * @return qNo  Initial NO  quantity (18 decimals)
+     */
+    function initialQuantities(uint256 b, uint256 targetPriceBps)
+        internal
+        pure
+        returns (uint256 qYes, uint256 qNo)
+    {
+        require(b > 0, "Liquidity parameter must be positive");
+        require(targetPriceBps > 0 && targetPriceBps < 10000, "Target price must be between 0 and 100% exclusive");
+
+        // For 50 % (5000 bps) just return equal quantities – avoids ln(1)=0 edge case
+        if (targetPriceBps == 5000) {
+            return (b, b);
+        }
+
+        // p = targetPriceBps / 10000  (as SD59x18)
+        SD59x18 p = sd(int256(targetPriceBps)).div(sd(int256(10000)));
+        // 1 - p
+        SD59x18 oneMinusP = sd(1e18).sub(p);
+
+        // We need ln(p/(1-p)). PRBMath udLn requires input >= 1e18.
+        // When p >= 0.5: ratio = p/(1-p) >= 1, compute ln(ratio) directly.
+        // When p <  0.5: ratio = (1-p)/p >= 1, compute ln((1-p)/p) and negate.
+        int256 deltaInt;
+        if (targetPriceBps >= 5000) {
+            // p >= 0.5: p/(1-p) >= 1
+            SD59x18 ratio = p.div(oneMinusP);
+            UD60x18 ratioUD = ud(uint256(ratio.unwrap()));
+            SD59x18 lnRatio = udLn(ratioUD).intoSD59x18();
+            deltaInt = sd(int256(b)).mul(lnRatio).unwrap();
+        } else {
+            // p < 0.5: compute ln((1-p)/p) and negate
+            SD59x18 invRatio = oneMinusP.div(p);
+            UD60x18 invRatioUD = ud(uint256(invRatio.unwrap()));
+            SD59x18 lnInvRatio = udLn(invRatioUD).intoSD59x18();
+            deltaInt = -(sd(int256(b)).mul(lnInvRatio).unwrap());
+        }
+
+        if (targetPriceBps >= 5000) {
+            // p >= 0.5: delta >= 0, so qYes = b + delta, qNo = b
+            qNo = b;
+            qYes = b + uint256(deltaInt);
+        } else {
+            // p < 0.5: delta < 0, flip: qYes = b, qNo = b + |delta|
+            qYes = b;
+            qNo = b + uint256(-deltaInt);
+        }
+    }
+
+    /**
      * @notice Calculate number of shares that can be bought with given cost
      * @dev Uses binary search
      * @param targetCost Amount of tokens to spend

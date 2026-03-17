@@ -61,9 +61,10 @@ describe("Precision & Rounding", async function () {
         effectiveTo,
         resolutionOpen,
         resolutionClose,
-        USDC(50),
-        USDC(50),
+        USDC(100),
+        5000n,
         "0x0000000000000000000000000000000000000000" as `0x${string}`,
+        deployer.account.address,
       ],
       { account: deployer.account }
     );

@@ -8,6 +8,9 @@ const DEPLOYMENTS_FILE = path.resolve(import.meta.dirname, "../deployments.json"
 // Real USDC on Sei mainnet (Circle native)
 const REAL_USDC = "0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392" as const;
 
+// SaySoToken already deployed — do not redeploy
+const EXISTING_SAYSO_TOKEN = "0x2006Dfe910bF22D5019d25e71D66976827C7F237" as const;
+
 async function main() {
   const { viem } = await network.connect();
   const walletClients = await viem.getWalletClients();

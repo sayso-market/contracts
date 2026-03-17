@@ -78,13 +78,16 @@ describe("LMSR Precision", async function () {
 
   async function createMarket(yesUsdc: number, noUsdc: number): Promise<any> {
     const now = await getNow();
-    const total = USDC(yesUsdc + noUsdc);
+    const totalSeed = yesUsdc + noUsdc;
+    const total = USDC(totalSeed);
+    const targetPriceBps = BigInt(Math.round(yesUsdc / totalSeed * 10000));
     await usdc.write.approve([factory.address, total], { account: alice.account });
     await factory.write.createMarket([
       `Test ${yesUsdc}/${noUsdc}`,
       now, now + 3600, now + 7200, now + 10800,
-      USDC(yesUsdc), USDC(noUsdc),
+      total, targetPriceBps,
       "0x0000000000000000000000000000000000000000" as `0x${string}`,
+      alice.account.address,
     ], { account: alice.account });
     const markets = await factory.read.getAllMarkets();
     return viem.getContractAt("AMM", markets[markets.length - 1]);
@@ -176,9 +179,9 @@ describe("LMSR Precision", async function () {
         const price = await market.read.price();
         const actual = priceToFloat(price);
 
+        // Initial price should match the target price exactly (not old LMSR ratio)
         const totalSeed = sc.yes + sc.no;
-        const b = totalSeed; // amplifier cancels: qYes*amp / (b*amp) = seedYes/totalSeed
-        const expected = expectedPrice(sc.yes, sc.no, b);
+        const expected = sc.yes / totalSeed;
 
         console.log(`  ${sc.label}: expected=${(expected * 100).toFixed(2)}%, actual=${(actual * 100).toFixed(2)}%`);
 

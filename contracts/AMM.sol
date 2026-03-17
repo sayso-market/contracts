@@ -21,6 +21,15 @@ contract AMM is ERC2771Context, ReentrancyGuard {
     address public immutable resolver;
     bytes32 public proofHash;
 
+    // Admin: can pause/unpause and refund
+    address public immutable admin;
+
+    // Pause state
+    bool public paused;
+
+    // Refund state
+    bool public refunded;
+
     // Fee configuration (0.5% = 50 basis points)
     uint256 public constant FEE_BPS = 50;
     uint256 public constant BPS_DENOMINATOR = 10000;
@@ -72,6 +81,9 @@ contract AMM is ERC2771Context, ReentrancyGuard {
     event MarketResolvedByOracle(bool outcome, bytes32 proofHash, address resolver);
     event Claimed(address indexed user, uint256 amount);
     event FeeCollected(address indexed buyer, uint256 feeAmount);
+    event MarketPaused(address indexed by);
+    event MarketUnpaused(address indexed by);
+    event MarketRefunded(address indexed by, uint256 totalRefunded);
 
     constructor(
         address _trustedForwarder,
@@ -82,12 +94,13 @@ contract AMM is ERC2771Context, ReentrancyGuard {
         uint256 _effectiveTo,
         uint256 _resolutionOpen,
         uint256 _resolutionClose,
-        uint256 _initialYesTokens,
-        uint256 _initialNoTokens,
+        uint256 _totalSeed,
+        uint256 _targetPriceBps,
         address _feeCollector,
         uint256 _liquidityParameter,
         address _seedProvider,
-        address _resolver
+        address _resolver,
+        address _admin
     ) ERC2771Context(_trustedForwarder) {
         // Zero-address validation
         require(_trustedForwarder != address(0), "Forwarder cannot be zero address");
@@ -102,6 +115,7 @@ contract AMM is ERC2771Context, ReentrancyGuard {
 
         // LMSR validation
         require(_liquidityParameter > 0, "Liquidity parameter must be positive");
+        require(_targetPriceBps > 0 && _targetPriceBps < 10000, "Target price must be between 0 and 100% exclusive");
 
         token = _token;
         oracle = _oracle;
@@ -113,28 +127,27 @@ contract AMM is ERC2771Context, ReentrancyGuard {
         feeCollector = _feeCollector;
         liquidityParameter = _liquidityParameter;
         resolver = _resolver;
+        admin = _admin;
 
-        // Initialize LMSR pricing state with amplified shares
-        // Amplifier = b / totalSeed so initial price reflects the seed split
-        // e.g. 40/60 seed → ~45/55 price instead of ~50/50
-        uint256 totalSeedScaled = (_initialYesTokens + _initialNoTokens) * 1e12;
-        uint256 amplifier = totalSeedScaled > 0 ? _liquidityParameter / totalSeedScaled : 1;
-        qYes = _initialYesTokens * 1e12 * amplifier;
-        qNo = _initialNoTokens * 1e12 * amplifier;
+        // Compute LMSR initial quantities from target price
+        (uint256 _qYes, uint256 _qNo) = LMSR.initialQuantities(_liquidityParameter, _targetPriceBps);
+        qYes = _qYes;
+        qNo = _qNo;
 
         // Initialize internal accounting with seed amount
-        totalDeposited = _initialYesTokens + _initialNoTokens;
+        totalDeposited = _totalSeed;
 
-        // Seed provider receives actual shares (not amplified)
-        // qYes/qNo track LMSR state (includes virtual liquidity for pricing)
-        // totalYes/totalNo track actual economic shares (for claims)
-        if (_initialYesTokens > 0) {
-            yesBalances[_seedProvider] = _initialYesTokens * 1e12;
-            totalYes = _initialYesTokens * 1e12;
+        // Seed provider receives shares: yesShares = totalSeed * targetPriceBps / 10000
+        uint256 yesShares = _totalSeed * 1e12 * _targetPriceBps / 10000;
+        uint256 noShares = _totalSeed * 1e12 - yesShares;
+
+        if (yesShares > 0) {
+            yesBalances[_seedProvider] = yesShares;
+            totalYes = yesShares;
         }
-        if (_initialNoTokens > 0) {
-            noBalances[_seedProvider] = _initialNoTokens * 1e12;
-            totalNo = _initialNoTokens * 1e12;
+        if (noShares > 0) {
+            noBalances[_seedProvider] = noShares;
+            totalNo = noShares;
         }
     }
 
@@ -171,6 +184,7 @@ contract AMM is ERC2771Context, ReentrancyGuard {
      * @dev User specifies cost, receives variable number of shares based on LMSR
      */
     function buyYes(uint256 maxCost) public duringTradingPeriod nonReentrant {
+        require(!paused, "Market is paused");
         require(maxCost > 0, "Amount must be greater than 0");
         require(maxCost >= MIN_DEPOSIT, "Deposit below minimum");
 
@@ -219,6 +233,7 @@ contract AMM is ERC2771Context, ReentrancyGuard {
      * @dev User specifies cost, receives variable number of shares based on LMSR
      */
     function buyNo(uint256 maxCost) public duringTradingPeriod nonReentrant {
+        require(!paused, "Market is paused");
         require(maxCost > 0, "Amount must be greater than 0");
         require(maxCost >= MIN_DEPOSIT, "Deposit below minimum");
 
@@ -267,6 +282,7 @@ contract AMM is ERC2771Context, ReentrancyGuard {
      * @dev User specifies shares, receives variable USDC based on LMSR
      */
     function sellYes(uint256 shares) public duringTradingPeriod canSell nonReentrant {
+        require(!paused, "Market is paused");
         require(shares > 0, "Shares must be greater than 0");
         require(yesBalances[_msgSender()] >= shares, "Insufficient shares");
 
@@ -296,6 +312,7 @@ contract AMM is ERC2771Context, ReentrancyGuard {
      * @dev User specifies shares, receives variable USDC based on LMSR
      */
     function sellNo(uint256 shares) public duringTradingPeriod canSell nonReentrant {
+        require(!paused, "Market is paused");
         require(shares > 0, "Shares must be greater than 0");
         require(noBalances[_msgSender()] >= shares, "Insufficient shares");
 
@@ -317,6 +334,39 @@ contract AMM is ERC2771Context, ReentrancyGuard {
         token.transfer(_msgSender(), payout);
 
         emit SharesSold(_msgSender(), false, shares, payout, price());
+    }
+
+    /**
+     * @notice Pause the market (only admin)
+     */
+    function pause() public {
+        require(msg.sender == admin, "Only admin can pause");
+        paused = true;
+        emit MarketPaused(msg.sender);
+    }
+
+    /**
+     * @notice Unpause the market (only admin)
+     */
+    function unpause() public {
+        require(msg.sender == admin, "Only admin can unpause");
+        paused = false;
+        emit MarketUnpaused(msg.sender);
+    }
+
+    /**
+     * @notice Refund all users proportionally (only admin, before resolution)
+     */
+    function refund() public {
+        require(msg.sender == admin, "Only admin can refund");
+        require(!resolved, "Already resolved");
+        require(!refunded, "Already refunded");
+
+        refunded = true;
+        resolved = true;
+        resolvedPoolBalance = totalDeposited;
+
+        emit MarketRefunded(msg.sender, totalDeposited);
     }
 
     /**
@@ -413,6 +463,15 @@ contract AMM is ERC2771Context, ReentrancyGuard {
             return 0;
         }
 
+        // Refund case: proportional to total shares (yes + no)
+        if (refunded) {
+            uint256 totalShares = totalYes + totalNo;
+            if (totalShares == 0) return 0;
+            uint256 userShares = yesBalances[user] + noBalances[user];
+            if (userShares == 0) return 0;
+            return (userShares * totalPoolBalance) / totalShares;
+        }
+
         // Oracle markets: use stored outcome directly (no oracle vote lookup)
         if (resolver != address(0)) {
             require(resolved, "Oracle market not yet resolved");
@@ -471,7 +530,10 @@ contract AMM is ERC2771Context, ReentrancyGuard {
     function claim() public nonReentrant {
         require(!hasClaimed[_msgSender()], "Already claimed");
 
-        if (resolver != address(0)) {
+        if (refunded) {
+            // Refund case: resolved is already true
+            require(resolved, "Not resolved");
+        } else if (resolver != address(0)) {
             // Oracle market: must be resolved via resolveAsOracle
             require(resolved, "Oracle market not yet resolved");
         } else {

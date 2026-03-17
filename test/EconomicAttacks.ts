@@ -62,9 +62,10 @@ describe("Economic Attack Vectors", async function () {
         effectiveTo,
         resolutionOpen,
         resolutionClose,
-        USDC(50),
-        USDC(50),
+        USDC(100),
+        5000n,
         "0x0000000000000000000000000000000000000000" as `0x${string}`,
+        deployer.account.address,
       ],
       { account: deployer.account }
     );
@@ -329,9 +330,10 @@ describe("Economic Attack Vectors", async function () {
           now + 200,
           now + 300,
           now + 500,
-          USDC(90), // 90% YES seed
-          USDC(10), // 10% NO seed
+          USDC(100), // 100 USDC total seed
+          9000n,     // 90% YES target
           "0x0000000000000000000000000000000000000000" as `0x${string}`,
+          attacker.account.address,
         ],
         { account: attacker.account }
       );

@@ -52,4 +52,12 @@ contract TestLMSR {
     ) external pure returns (uint256) {
         return LMSR.sharesForCost(targetCost, qYes, qNo, b, isYes);
     }
+
+    function initialQuantities(uint256 b, uint256 targetPriceBps)
+        external
+        pure
+        returns (uint256 qYes, uint256 qNo)
+    {
+        return LMSR.initialQuantities(b, targetPriceBps);
+    }
 }

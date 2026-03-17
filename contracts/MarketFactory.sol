@@ -56,12 +56,11 @@ contract MarketFactory is Ownable {
         uint256 effectiveTo,
         uint256 resolutionOpen,
         uint256 resolutionClose,
-        uint256 initialYesTokens,
-        uint256 initialNoTokens,
-        address _resolver
+        uint256 totalSeed,
+        uint256 targetPriceBps,
+        address _resolver,
+        address _seedProvider
     ) public returns (address) {
-        uint256 totalSeed = initialYesTokens + initialNoTokens;
-
         // Enforce minimum seed
         require(totalSeed >= MIN_SEED, "Seed below minimum (10 USDC required)");
 
@@ -89,12 +88,13 @@ contract MarketFactory is Ownable {
             effectiveTo,
             resolutionOpen,
             resolutionClose,
-            initialYesTokens,
-            initialNoTokens,
+            totalSeed,
+            targetPriceBps,
             feeCollector,
             liquidityParameter,
-            msg.sender, // Seed provider receives initial shares
-            _resolver
+            _seedProvider, // Seed provider receives initial shares
+            _resolver,
+            msg.sender // admin = deployer/relayer
         );
 
         address marketAddress = address(market);
