@@ -82,12 +82,11 @@ async function main() {
 
   // ── Phase 1: No-dependency contracts ──────────────────
   // Note: NO MockUSDC — prod uses real USDC
+  // Note: SaySoToken is already deployed and persistent — not redeployed
+  const saysoTokenAddr = EXISTING_SAYSO_TOKEN;
   console.log("── Phase 1: Deploying independent contracts ──\n");
   console.log("  (Approve each transaction on your Ledger device)\n");
-
-  const saysoTokenAddr = await deployWithLedger("SaySoToken");
-  console.log(`  SaySoToken      ${saysoTokenAddr}`);
-  await delay(3000);
+  console.log(`  SaySoToken      ${saysoTokenAddr} (existing — not redeployed)`);
 
   const forwarderAddr = await deployWithLedger("SaySoForwarder");
   console.log(`  SaySoForwarder  ${forwarderAddr}`);
@@ -134,7 +133,7 @@ async function main() {
       },
       SaySoToken: {
         address: saysoTokenAddr,
-        note: "Governance token, onlyOwner mint, 100M max supply",
+        note: "Governance token (persistent — not redeployed)",
       },
       SaySoForwarder: {
         address: forwarderAddr,
