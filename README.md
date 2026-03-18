@@ -8,39 +8,19 @@ Users trade on binary outcome markets (YES/NO) using USDC. All betting is gasles
 
 ### Contracts
 
-| Contract | Description |
-|---|---|
-| `AMM.sol` | Individual market pool — buy/sell YES/NO shares with USDC |
-| `ResolutionOracle.sol` | Voting = staking. SAYSO holders vote per-pool during the resolution window |
-| `MarketFactory.sol` | Permissionless factory for deploying new markets |
-| `SaySoToken.sol` | SAYSO governance token (onlyOwner mint, 1B max supply) |
-| `SaySoForwarder.sol` | ERC-2771 trusted forwarder for gasless meta-transactions |
-| `MockUSDC.sol` | Mock USDC matching Circle's real USDC on Sei (EIP-712 name="USDC", version="2") |
-| `LMSR.sol` | Logarithmic Market Scoring Rule library using PRBMath |
+| Contract               | Description                                                                     |
+| ---------------------- | ------------------------------------------------------------------------------- |
+| `AMM.sol`              | Individual market pool — buy/sell YES/NO shares with USDC                       |
+| `ResolutionOracle.sol` | Voting = staking. SAYSO holders vote per-pool during the resolution window      |
+| `MarketFactory.sol`    | Permissionless factory for deploying new markets                                |
+| `SaySoToken.sol`       | SAYSO governance token (onlyOwner mint, 1B max supply)                          |
+| `SaySoForwarder.sol`   | ERC-2771 trusted forwarder for gasless meta-transactions                        |
+| `MockUSDC.sol`         | Mock USDC matching Circle's real USDC on Sei (EIP-712 name="USDC", version="2") |
+| `LMSR.sol`             | Logarithmic Market Scoring Rule library using PRBMath                           |
 
 ### Deployed Addresses (Sei Mainnet)
 
-**Demo Environment:**
-
-| Contract | Address |
-|---|---|
-| MockUSDC | `0x7c02d979738c87753ac204e14091379d0de66d5b` |
-| SaySoToken | `0xad02ef7a3a0041cef28a02f3c3761b2b2b594e8a` |
-| SaySoForwarder | `0xc3d6fefefaf4e6306b2b84bcd54a8c4fd3b26667` |
-| ResolutionOracle | `0x347aab0fd72e540fef0eab7a7d2c137d726cb7e9` |
-| MarketFactory | `0x2e0bebd06a8ccc4da599d6e95a69c62f62022136` |
-
-**Production Environment:**
-
-| Contract | Address |
-|---|---|
-| USDC (Circle) | `0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf42392` |
-| SaySoToken | `0x2006Dfe910bF22D5019d25e71D66976827C7F237` |
-| SaySoForwarder | `0x7B160cE3a567ebE46716Ae114537DB13141b7c3c` |
-| ResolutionOracle | `0xaDF0Ae112c8D13A9E69a305D92219e6d72AD7F28` |
-| MarketFactory | `0x7279a222DF7a079496744357eB66B50c23265BF9` |
-
-See [deployments.json](deployments.json) for full details.
+See [deployments.json](deployments.json).
 
 ## Market Lifecycle
 
@@ -82,6 +62,7 @@ npm test
 **Test Suite Status: 221/221 tests passing (100%)**
 
 Comprehensive test coverage across 18 test files:
+
 - **E2E Tests** (9) - Full lifecycle with invariant checks
 - **LMSR Library** (19) - Complete LMSR math verification
 - **LMSR Precision** (19) - Precision and rounding for LMSR calculations
@@ -118,6 +99,7 @@ npx hardhat run scripts/deploy-prod.ts --network sei
 ```
 
 Deployment deploys in dependency order:
+
 1. MockUSDC (demo only), SaySoToken, SaySoForwarder (no dependencies)
 2. ResolutionOracle (needs SaySoToken, SaySoForwarder)
 3. MarketFactory (needs USDC/MockUSDC, ResolutionOracle, SaySoForwarder)
@@ -154,15 +136,16 @@ USDC approvals are also gasless via ERC-2612 `permit()` signatures.
 
 ## EIP-712 Domains
 
-| Contract | Name | Version | Notes |
-|---|---|---|---|
-| MockUSDC (demo) | `USDC` | `2` | Matches Circle USDC on Sei |
-| Circle USDC (prod) | `USDC` | `2` | Native Circle USDC |
-| SaySoForwarder | `SaySoForwarder` | `1` | ForwardRequest uses `uint48 deadline` |
+| Contract           | Name             | Version | Notes                                 |
+| ------------------ | ---------------- | ------- | ------------------------------------- |
+| MockUSDC (demo)    | `USDC`           | `2`     | Matches Circle USDC on Sei            |
+| Circle USDC (prod) | `USDC`           | `2`     | Native Circle USDC                    |
+| SaySoForwarder     | `SaySoForwarder` | `1`     | ForwardRequest uses `uint48 deadline` |
 
 ## Development
 
 Built with:
+
 - Solidity 0.8.28
 - Hardhat 3
 - Viem
