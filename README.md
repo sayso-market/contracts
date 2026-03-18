@@ -53,37 +53,6 @@ cp .env.example .env
 # Edit .env with your deployer private key
 ```
 
-## Testing
-
-```bash
-npm test
-```
-
-**Test Suite Status: 221/221 tests passing (100%)**
-
-Comprehensive test coverage across 18 test files:
-
-- **E2E Tests** (9) - Full lifecycle with invariant checks
-- **LMSR Library** (19) - Complete LMSR math verification
-- **LMSR Precision** (19) - Precision and rounding for LMSR calculations
-- **Edge Cases** (18) - MIN_DEPOSIT boundaries, ties, no-votes scenarios
-- **Admin Mutations** (17) - Factory admin function behavior
-- **View Functions** (17) - Read-only contract functions
-- **Security** (15) - Flash loan protection, access control, reentrancy
-- **State Transitions** (13) - Market phase transitions
-- **Failure Modes** (13) - Error handling and reverts
-- **Precision** (11) - Numerical precision and rounding
-- **Meta Transactions** (11) - ERC-2771 gasless operations
-- **Invariants** (10) - Conservation laws, donation attack immunity
-- **Extreme Values** (10) - Overflow/underflow edge cases
-- **Economic Attacks** (8) - Attack vector resistance
-- **Multi-User Scenarios** (6) - Complex multi-party interactions
-- **Market Seeding** (4) - Various liquidity configurations
-- **LMSR Pricing** (2) - Pricing correctness validation
-- **Walkthrough** (1) - Verbose 4-user journey with logging
-
-See [TESTING.md](TESTING.md) for detailed test documentation.
-
 ## Deployment
 
 ### Deploy demo environment to Sei
